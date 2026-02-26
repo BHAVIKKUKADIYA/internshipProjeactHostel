@@ -1,0 +1,180 @@
+/* Menu.html Typography */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap');
+
+/* Navbar from menu.html */
+/* Since Tailwind is used, we mostly rely on classes, but custom colors were defined in menu.html script */
+/* We can add them as CSS variables or utility classes here if the Tailwind config isn't enough */
+
+.text-luxe-rose {
+    color: #c67c7c;
+}
+
+.bg-luxe-rose {
+    background-color: #c67c7c;
+}
+
+.border-luxe-rose {
+    border-color: #c67c7c;
+}
+
+.hover\:text-luxe-rose:hover {
+    color: #c67c7c;
+}
+
+.focus\:ring-luxe-rose:focus {
+    --tw-ring-color: #c67c7c;
+}
+
+.focus\:border-luxe-rose:focus {
+    border-color: #c67c7c;
+}
+
+.bg-luxe-ivory {
+    background-color: #faf9f8;
+}
+
+.bg-luxe-charcoal {
+    background-color: #2b2b2b;
+}
+
+.nav-tab-underline {
+    position: relative;
+}
+
+.nav-tab-underline::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -4px;
+    left: 0;
+    background-color: #c67c7c;
+    transition: width 0.3s ease;
+}
+
+.nav-tab-underline:hover::after {
+    width: 100%;
+}
+
+.menu-card {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.menu-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+}
+
+/* Existing styles below */
+.serif-heading {
+    font-family: 'Playfair Display', serif;
+}
+
+.body-text {
+    font-family: 'Public Sans', sans-serif;
+}
+
+/* feedback styles */
+.card-shadow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+}
+
+.luxury-input {
+    border: 1px solid #E5E1DA;
+    background: #FFFFFF;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.luxury-input:hover {
+    border-color: #B76E79;
+}
+
+.luxury-input:focus {
+    border-color: #B76E79;
+    box-shadow: 0 0 10px rgba(183, 110, 121, 0.1);
+}
+
+/* table booking styles */
+.transition-soft {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gold-focus:focus {
+    outline: none;
+    border-color: #B76E79;
+    box-shadow: 0 0 0 2px rgba(183, 110, 121, 0.1);
+}
+
+.btn-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(183, 110, 121, 0.2);
+}
+
+.btn-lift-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -5px rgba(183, 110, 121, 0.3);
+    filter: brightness(1.05);
+}
+
+.img-hover-scale:hover {
+    transform: scale(1.02);
+}
+
+/* Navigation Tabs */
+.nav-tab {
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.nav-tab::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: #c67c7c;
+    transition: width 0.3s ease;
+}
+
+.nav-tab:hover::after,
+.nav-tab.text-luxe-rose::after {
+    width: 100%;
+}
+
+/* Animation for loading reviews */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Star Rating Animation */
+#rating-stars span {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#rating-stars span:hover {
+    transform: scale(1.25);
+    text-shadow: 0 0 10px rgba(183, 110, 121, 0.2);
+}
