@@ -5,11 +5,11 @@ require_once '../actions/feedback/feedback_actions.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
-        'customer_name' => $_POST['name'] ?? 'Guest',
+        'name' => $_POST['name'] ?? 'Guest',
         'email' => $_POST['email'] ?? '',
         'rating' => (int)($_POST['rating'] ?? 5),
-        'comment' => $_POST['message'] ?? '',
-        'status' => 'Pending'
+        'review_text' => $_POST['message'] ?? '',
+        'status' => 'pending'
     ];
     
     if (add_feedback($pdo, $data)) {
@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $page_title = "Guest Reviews | KUKI";
 include '../includes/user_header.php'; 
+$reviews = get_all_feedback($pdo, 'approved');
 ?>
 
 <!-- BEGIN: Hero Section -->
@@ -34,142 +35,36 @@ include '../includes/user_header.php';
 <!-- BEGIN: Featured Testimonials -->
 <section class="pt-8 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div id="reviews-grid" class="grid md:grid-cols-3 gap-8">
-<!-- Testimonial Card 1 -->
-<div class="bg-white p-10 rounded-xl card-shadow relative">
-<div class="flex space-x-1 mb-6 text-sm text-primary">
-<span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-</div>
-<p class="text-charcoal italic mb-8 leading-relaxed">"An unforgettable evening. The Wagyu Ribeye was cooked to perfection, and the service was impeccable. A true 5-star experience in every sense."</p>
-<div class="flex items-center space-x-4">
-<div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">JD</div>
-<div>
-<h4 class="font-bold text-sm uppercase tracking-wider">James Dalton</h4>
-<p class="text-xs text-soft-grey">Food Critic</p>
-</div>
-</div>
-<span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-</div>
-<!-- Testimonial Card 2 -->
-<div class="bg-white p-10 rounded-xl card-shadow relative">
-<div class="flex space-x-1 mb-6 text-sm text-primary">
-<span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-</div>
-<p class="text-charcoal italic mb-8 leading-relaxed">"The ambiance is sophisticated yet welcoming. The truffle tagliatelle is a masterpiece. Highly recommend for any special occasion."</p>
-<div class="flex items-center space-x-4">
-<div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">SR</div>
-<div>
-<h4 class="font-bold text-sm uppercase tracking-wider">Sophia Reynolds</h4>
-<p class="text-xs text-soft-grey">Lifestyle Blogger</p>
-</div>
-</div>
-<span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-</div>
-<!-- Testimonial Card 3 -->
-<div class="bg-white p-10 rounded-xl card-shadow relative">
-<div class="flex space-x-1 mb-6 text-sm text-primary">
-<span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-</div>
-<p class="text-charcoal italic mb-8 leading-relaxed">"From the moment we walked in, we felt like royalty. The gold leaf fondant was the perfect end to a magnificent meal. We'll be back!"</p>
-<div class="flex items-center space-x-4">
-<div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">MT</div>
-<div>
-<h4 class="font-bold text-sm uppercase tracking-wider">Marcus Thorne</h4>
-<p class="text-xs text-soft-grey">Regular Guest</p>
-</div>
-</div>
-<span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-</div>
-
-    <!-- Review 4 -->
-    <div class="bg-white p-10 rounded-xl card-shadow relative">
+<?php if (empty($reviews)): ?>
+    <p class="text-soft-grey italic text-center col-span-full py-10">No reviews yet. Be the first to share your experience!</p>
+<?php else: ?>
+    <?php foreach ($reviews as $review): 
+        $initials = '';
+        if (!empty($review['name'])) {
+            $parts = explode(' ', $review['name']);
+            $initials = strtoupper(substr($parts[0], 0, 1) . (count($parts) > 1 ? substr($parts[count($parts)-1], 0, 1) : ''));
+        }
+    ?>
+    <div class="bg-white p-10 rounded-xl card-shadow relative animate-fade-in review-card">
         <div class="flex space-x-1 mb-6 text-sm text-primary">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+            <?php for ($i = 1; $i <= 5; $i++): ?>
+                <span><?= $i <= $review['rating'] ? '★' : '<span class="opacity-30">★</span>' ?></span>
+            <?php endfor; ?>
         </div>
-        <p class="text-charcoal italic mb-8 leading-relaxed">"Absolute perfection. The wine pairing suggestions were spot on. A masterclass in fine dining."</p>
+        <p class="text-charcoal italic mb-8 leading-relaxed">"<?= htmlspecialchars($review['review_text']) ?>"</p>
         <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">EP</div>
+            <div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">
+                <?= htmlspecialchars($initials) ?>
+            </div>
             <div>
-                <h4 class="font-bold text-sm uppercase tracking-wider">Eleanor P.</h4>
-                <p class="text-xs text-soft-grey">Regular Guest</p>
+                <h4 class="font-bold text-sm uppercase tracking-wider"><?= htmlspecialchars($review['name']) ?></h4>
+                <p class="text-xs text-soft-grey"><?= date("F j, Y", strtotime($review['created_at'])) ?></p>
             </div>
         </div>
         <span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
     </div>
-    <!-- Review 5 -->
-    <div class="bg-white p-10 rounded-xl card-shadow relative">
-        <div class="flex space-x-1 mb-6 text-sm text-primary">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-        </div>
-        <p class="text-charcoal italic mb-8 leading-relaxed">"Best lobster bisque I've ever tasted. The textures and flavors were balanced perfectly."</p>
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">JM</div>
-            <div>
-                <h4 class="font-bold text-sm uppercase tracking-wider">Julian M.</h4>
-                <p class="text-xs text-soft-grey">Food Enthusiast</p>
-            </div>
-        </div>
-        <span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-    </div>
-    <!-- Review 6 -->
-    <div class="bg-white p-10 rounded-xl card-shadow relative">
-        <div class="flex space-x-1 mb-6 text-sm text-primary">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-        </div>
-        <p class="text-charcoal italic mb-8 leading-relaxed">"A hidden gem. The attention to detail in the plating is like nothing I've seen before."</p>
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">SW</div>
-            <div>
-                <h4 class="font-bold text-sm uppercase tracking-wider">Sarah W.</h4>
-                <p class="text-xs text-soft-grey">Local Guide</p>
-            </div>
-        </div>
-        <span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-    </div>
-    <!-- Review 7 -->
-    <div class="bg-white p-10 rounded-xl card-shadow relative review-card">
-        <div class="flex space-x-1 mb-6 text-sm text-primary">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-        </div>
-        <p class="text-charcoal italic mb-8 leading-relaxed">"The tasting menu was a journey of flavors. Each course told a unique story. Simply brilliant."</p>
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">AL</div>
-            <div>
-                <h4 class="font-bold text-sm uppercase tracking-wider">Anna Lee</h4>
-                <p class="text-xs text-soft-grey">Chef</p>
-            </div>
-        </div>
-        <span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-    </div>
-    <!-- Review 8 -->
-    <div class="bg-white p-10 rounded-xl card-shadow relative review-card">
-        <div class="flex space-x-1 mb-6 text-sm text-primary">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-        </div>
-        <p class="text-charcoal italic mb-8 leading-relaxed">"Elegant and timeless. The live jazz band added such a wonderful touch to our anniversary dinner."</p>
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">RK</div>
-            <div>
-                <h4 class="font-bold text-sm uppercase tracking-wider">Richard K.</h4>
-                <p class="text-xs text-soft-grey">Musician</p>
-            </div>
-        </div>
-        <span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-    </div>
-    <!-- Review 9 -->
-    <div class="bg-white p-10 rounded-xl card-shadow relative review-card">
-        <div class="flex space-x-1 mb-6 text-sm text-primary">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-        </div>
-        <p class="text-charcoal italic mb-8 leading-relaxed">"Service that anticipates your needs before you do. A rare find in today's dining scene."</p>
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-background-ivory rounded-full flex items-center justify-center font-bold text-sm text-primary">EM</div>
-            <div>
-                <h4 class="font-bold text-sm uppercase tracking-wider">Emily M.</h4>
-                <p class="text-xs text-soft-grey">Event Planner</p>
-            </div>
-        </div>
-        <span class="absolute top-8 right-10 text-4xl text-border-neutral font-serif">"</span>
-    </div>
+    <?php endforeach; ?>
+<?php endif; ?>
 </div>
 
 <div class="text-center mt-16">

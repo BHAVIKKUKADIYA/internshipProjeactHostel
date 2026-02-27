@@ -27,10 +27,13 @@ $fb_stats = get_feedback_stats($pdo);
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -42,7 +45,7 @@ $fb_stats = get_feedback_stats($pdo);
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -289,8 +292,8 @@ async function initCharts() {
                     {
                         label: 'Reservations',
                         data: resData.map(d => d.count),
-                        borderColor: '#b76e79',
-                        backgroundColor: 'rgba(183, 110, 121, 0.1)',
+                        borderColor: '#c67c7c',
+                        backgroundColor: 'rgba(198, 124, 124, 0.1)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
@@ -314,7 +317,7 @@ async function initCharts() {
                 plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
                 scales: {
                     x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { size: 10 } } },
-                    y: { type: 'linear', display: true, position: 'left', beginAtZero: true, title: { display: true, text: 'Reservations', font: { size: 10 } } },
+                    y: { type: 'linear', display: true, position: 'left', beginAtZero: true, grid: { color: '#e5e0dd' }, title: { display: true, text: 'Reservations', font: { size: 10 } } },
                     y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Revenue ($)', font: { size: 10 } } }
                 }
             }
@@ -331,7 +334,7 @@ async function initCharts() {
                 labels: statusData.labels,
                 datasets: [{
                     data: statusData.counts,
-                    backgroundColor: ['#b76e79', '#a55f69', '#dfabb4', '#f4efec'],
+                    backgroundColor: ['#c67c7c', '#b26a6a', '#d4a1a1', '#f4efec'],
                     borderWidth: 0
                 }]
             },
@@ -355,7 +358,7 @@ async function initCharts() {
                 datasets: [{
                     label: 'Orders',
                     data: foodData.values,
-                    backgroundColor: '#b76e79',
+                    backgroundColor: '#c67c7c',
                     borderRadius: 8
                 }]
             },

@@ -11,8 +11,8 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#B76E79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
                         charcoal: '#2b2b2b',
                         'background-ivory': '#FAF9F8',
                         'border-neutral': '#E5E1DA',

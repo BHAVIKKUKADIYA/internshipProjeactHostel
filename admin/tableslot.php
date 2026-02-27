@@ -63,11 +63,14 @@ try {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
-                        'background-light': '#fdfbf9',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
+                        'background-light': '#f4efec',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -78,38 +81,38 @@ try {
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #fdfbf9; }
+        body { font-family: 'Inter', sans-serif; background-color: #f4efec; }
         .serif-title { font-family: 'Playfair Display', serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); border: 1px solid rgba(183, 110, 121, 0.1); }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); border: 1px solid #e5e0dd; }
         .calendar-day { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .calendar-day:hover:not(.disabled) { transform: translateY(-2px); }
         .slot-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
-        .slot-card.active { border-left-color: #b76e79; background: #fff5f6; }
+        .slot-card.active { border-left-color: #c67c7c; background: #fdfbf9; }
         .table-btn { transition: all 0.2s ease; transform-origin: center; cursor: default; }
         .table-btn.available { background: #ecfdf5; border: 1px solid #10b981; color: #059669; }
         .table-btn.booked { background: #fef2f2; border: 1px solid #ef4444; color: #dc2626; cursor: not-allowed; }
-        .table-btn.selected { background: #b76e79; border-color: #b76e79; color: white; transform: scale(1.05); }
+        .table-btn.selected { background: #c67c7c; border-color: #c67c7c; color: white; transform: scale(1.05); }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #b76e7944; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c67c7c44; border-radius: 10px; }
     </style>
 </head>
 <body class="text-luxe-dark">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <?php include 'sidebar.php'; ?>
+        <?php include '../includes/admin_sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar">
             <!-- Header Section -->
             <header class="flex justify-between items-center mb-10">
                 <div>
-                    <h1 class="serif-title text-4xl font-black text-slate-900 leading-tight">Smart Table Booking Management</h1>
-                    <p class="text-slate-500 font-medium mt-1">Day-wise table availability and booking overview.</p>
+                    <h1 class="serif-title text-4xl font-black text-luxe-charcoal leading-tight">Smart Table Booking Management</h1>
+                    <p class="text-luxe-grey-text font-medium mt-1">Day-wise table availability and booking overview.</p>
                 </div>
                 <div class="flex items-center gap-6">
                     <div class="text-right hidden md:block">
-                        <p class="text-sm font-bold text-slate-900">Admin Panel</p>
+                        <p class="text-sm font-bold text-luxe-charcoal">Admin Panel</p>
                         <p class="text-xs text-primary font-bold uppercase tracking-widest">Luxe Rose Edition</p>
                     </div>
                     <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-sm border border-primary/20">
@@ -122,50 +125,50 @@ try {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 <div class="glass-card p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all">
                     <div class="flex justify-between items-start mb-4">
-                        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Total Tables</p>
-                        <div class="size-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+                        <p class="text-luxe-grey-text text-[10px] font-black uppercase tracking-[0.2em]">Total Tables</p>
+                        <div class="size-10 rounded-xl bg-luxe-beige flex items-center justify-center text-luxe-charcoal">
                             <span class="material-symbols-outlined text-xl">table_restaurant</span>
                         </div>
                     </div>
                     <div class="flex items-baseline gap-2">
-                        <h2 id="stat-total-tables" class="text-3xl font-black text-slate-900"><?= number_format($total_tables) ?></h2>
-                        <span class="text-xs text-slate-400 font-bold">Tables Total</span>
+                        <h2 id="stat-total-tables" class="text-3xl font-black text-luxe-charcoal"><?= number_format($total_tables) ?></h2>
+                        <span class="text-xs text-luxe-grey-text font-bold">Tables Total</span>
                     </div>
                 </div>
                 <div class="glass-card p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all">
                     <div class="flex justify-between items-start mb-4">
-                        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Available Today</p>
+                        <p class="text-luxe-grey-text text-[10px] font-black uppercase tracking-[0.2em]">Available Today</p>
                         <div class="size-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600">
                             <span class="material-symbols-outlined text-xl">check_circle</span>
                         </div>
                     </div>
                     <div class="flex items-baseline gap-2">
-                        <h2 id="stat-available-today" class="text-3xl font-black text-slate-900"><?= number_format($available_today) ?></h2>
-                        <span class="text-xs text-slate-400 font-bold">Ready to Book</span>
+                        <h2 id="stat-available-today" class="text-3xl font-black text-luxe-charcoal"><?= number_format($available_today) ?></h2>
+                        <span class="text-xs text-luxe-grey-text font-bold">Ready to Book</span>
                     </div>
                 </div>
                 <div class="glass-card p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all border-l-4 border-primary">
                     <div class="flex justify-between items-start mb-4">
-                        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Booked Today</p>
+                        <p class="text-luxe-grey-text text-[10px] font-black uppercase tracking-[0.2em]">Booked Today</p>
                         <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                             <span class="material-symbols-outlined text-xl">bookmarks</span>
                         </div>
                     </div>
                     <div class="flex items-baseline gap-2">
-                        <h2 id="stat-booked-today" class="text-3xl font-black text-slate-900"><?= number_format($booked_today) ?></h2>
-                        <span class="text-xs text-slate-400 font-bold">Reservations</span>
+                        <h2 id="stat-booked-today" class="text-3xl font-black text-luxe-charcoal"><?= number_format($booked_today) ?></h2>
+                        <span class="text-xs text-luxe-grey-text font-bold">Reservations</span>
                     </div>
                 </div>
                 <div class="glass-card p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all">
                     <div class="flex justify-between items-start mb-4">
-                        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Peak Time Slots</p>
+                        <p class="text-luxe-grey-text text-[10px] font-black uppercase tracking-[0.2em]">Peak Time Slots</p>
                         <div class="size-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
                             <span class="material-symbols-outlined text-xl">bolt</span>
                         </div>
                     </div>
                     <div class="flex items-baseline gap-2">
-                        <h2 id="stat-peak-display" class="text-lg font-black text-slate-900 truncate"><?= htmlspecialchars($peak_display) ?></h2>
-                        <span class="text-xs text-slate-400 font-bold">High Demand</span>
+                        <h2 id="stat-peak-display" class="text-lg font-black text-luxe-charcoal truncate"><?= htmlspecialchars($peak_display) ?></h2>
+                        <span class="text-xs text-luxe-grey-text font-bold">High Demand</span>
                     </div>
                 </div>
             </div>
@@ -176,12 +179,12 @@ try {
                 <div class="xl:col-span-4 space-y-8">
                     <div class="glass-card p-6 rounded-[2.5rem] shadow-sm">
                         <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-black text-slate-900">Booking Calendar</h3>
+                            <h3 class="text-lg font-black text-luxe-charcoal">Booking Calendar</h3>
                             <div class="flex items-center gap-2">
                                 <button onclick="changeMonth(-1)" class="size-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors">
                                     <span class="material-symbols-outlined text-lg">chevron_left</span>
                                 </button>
-                                <span id="current-month-display" class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2 border border-slate-100 rounded-xl min-w-[140px] text-center">Checking...</span>
+                                <span id="current-month-display" class="text-[10px] font-black text-luxe-grey-text uppercase tracking-widest px-4 py-2 border border-luxe-border rounded-xl min-w-[140px] text-center">Checking...</span>
                                 <button onclick="changeMonth(1)" class="size-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors">
                                     <span class="material-symbols-outlined text-lg">chevron_right</span>
                                 </button>
@@ -193,7 +196,7 @@ try {
                             <!-- JS will populate this -->
                         </div>
 
-                        <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+                        <div class="mt-8 pt-6 border-t border-luxe-border flex justify-between items-center">
                             <div class="flex gap-4">
                                 <div class="flex items-center gap-2">
                                     <div class="size-2 rounded-full bg-green-500"></div>
@@ -214,10 +217,7 @@ try {
                             <span class="material-symbols-outlined group-hover:rotate-12 transition-transform">add_circle</span>
                             Add New Time Slot
                         </button>
-                        <button class="w-full py-4 bg-white text-slate-600 border border-slate-200 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:bg-slate-50">
-                            <span class="material-symbols-outlined">restart_alt</span>
-                            Reset Schedule
-                        </button>
+
                     </div>
                 </div>
 
@@ -225,7 +225,7 @@ try {
                 <div class="xl:col-span-8 space-y-8">
                     <!-- Time Slot Selection -->
                     <div class="glass-card p-6 rounded-[2.5rem] shadow-sm">
-                        <h3 class="text-lg font-black text-slate-900 mb-6 font-serif">Time Slot Availability</h3>
+                        <h3 class="text-lg font-black text-luxe-charcoal mb-6 font-serif">Time Slot Availability</h3>
                         <div id="slots-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <?php foreach ($active_slots as $slot): 
                                 $isActive = (bool)$slot['is_active'];
@@ -241,10 +241,10 @@ try {
                                 elseif ($isFull) { $colorClass = 'bg-red-500'; $bgClass = 'bg-red-50/50'; }
                                 elseif ($percent > 60) { $colorClass = 'bg-amber-500'; $bgClass = 'bg-amber-50/50'; }
                             ?>
-                            <button onclick="<?= $isActive ? "selectSlot('".$slot['time_slot']."')" : "void(0)" ?>" class="slot-card w-full p-4 rounded-2xl border text-left flex flex-col gap-3 group transition-all duration-300 bg-white <?= $isActive ? 'border-slate-100 hover:border-primary/20 hover:shadow-md' : 'opacity-60 grayscale border-slate-100 cursor-not-allowed' ?>">
+                            <button onclick="<?= $isActive ? "selectSlot('".$slot['time_slot']."')" : "void(0)" ?>" class="slot-card w-full p-4 rounded-2xl border text-left flex flex-col gap-3 group transition-all duration-300 bg-white <?= $isActive ? 'border-luxe-border hover:border-primary/20 hover:shadow-md' : 'opacity-60 grayscale border-luxe-border cursor-not-allowed' ?>">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <p class="text-sm font-black text-slate-900"><?= $slot['time_slot'] ?></p>
+                                        <p class="text-sm font-black text-luxe-charcoal"><?= $slot['time_slot'] ?></p>
                                         <p class="text-[10px] font-bold <?= !$isActive ? 'text-slate-400' : ($isFull ? 'text-red-500' : 'text-slate-400') ?>">
                                             <?= !$isActive ? 'DISABLED' : ($isFull ? 'FULLY BOOKED' : $remain . ' Tables Left') ?>
                                         </p>
@@ -263,34 +263,35 @@ try {
                             </button>
                             <?php endforeach; ?>
                         </div>
+                    </div>
 
                     <!-- Table Availability Details -->
-                    <div id="table-selection-area" class="glass-card p-8 rounded-[3rem] shadow-sm relative overflow-hidden hidden">
+                    <div id="table-selection-area" class="glass-card p-8 rounded-[3rem] shadow-sm relative overflow-hidden hidden mt-8">
                         <!-- BG Decoration -->
                         <div class="absolute -top-10 -right-10 size-64 bg-primary/5 rounded-full blur-3xl"></div>
                         
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative z-10">
                             <div>
-                                <h3 class="text-2xl font-black text-slate-900 font-serif">Booking Details</h3>
-                                <p class="text-sm text-slate-500 font-medium">Detailed reservation information for selected slot</p>
+                                <h3 class="text-2xl font-black text-luxe-charcoal font-serif">Booking Details</h3>
+                                <p class="text-sm text-luxe-grey-text font-medium">Detailed reservation information for selected slot</p>
                             </div>
                         </div>
 
-                        <div id="table-grid" class="flex flex-col mb-10">
+                        <div id="table-grid" class="flex flex-col mb-4">
                             <!-- Bookings will be injected via JS -->
                         </div>
 
-                        <div id="no-tables-message" class="hidden py-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                            <span class="material-symbols-outlined text-4xl text-slate-400 mb-3">event_busy</span>
-                            <h4 class="text-slate-900 font-black">No bookings for this time slot.</h4>
-                            <p class="text-sm text-slate-500 mt-1">Select another time or date to see more information.</p>
+                        <div id="no-tables-message" class="hidden py-12 text-center bg-luxe-beige/10 rounded-3xl border border-dashed border-luxe-border">
+                            <span class="material-symbols-outlined text-4xl text-luxe-grey-text mb-3">event_busy</span>
+                            <h4 class="text-luxe-charcoal font-black">No bookings for this time slot.</h4>
+                            <p class="text-sm text-luxe-grey-text mt-1">Select another time or date to see more information.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Footer -->
-            <footer class="mt-16 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+            <footer class="mt-16 pt-8 border-t border-luxe-border flex flex-col md:flex-row justify-between items-center gap-4 text-luxe-grey-text text-[10px] font-black uppercase tracking-[0.2em]">
                 <p>&copy; 2024 LUXE RESTAURANT MANAGEMENT. ROSE EDITION V2.5.0</p>
                 <div class="flex gap-8">
                     <a href="#" class="hover:text-primary transition-colors">Documentation</a>
@@ -303,7 +304,7 @@ try {
 
     <!-- Toast Component -->
     <div id="toast" class="fixed bottom-10 right-10 z-[100] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-white px-6 py-4 rounded-2xl shadow-2xl border border-slate-100 flex items-center gap-4">
+        <div class="bg-white px-6 py-4 rounded-2xl shadow-2xl border border-luxe-border flex items-center gap-4">
             <div id="toast-icon-bg" class="size-10 rounded-xl flex items-center justify-center text-white">
                 <span id="toast-icon" class="material-symbols-outlined">check</span>
             </div>

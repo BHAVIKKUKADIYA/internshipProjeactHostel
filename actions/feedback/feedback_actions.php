@@ -9,9 +9,14 @@ require_once __DIR__ . '/../../config/config.php';
 /**
  * Get all feedback
  */
-function get_all_feedback($pdo) {
+function get_all_feedback($pdo, $status = null) {
     try {
-        return $pdo->query("SELECT * FROM feedback ORDER BY created_at DESC")->fetchAll();
+        $sql = "SELECT * FROM feedback";
+        if ($status) {
+            $sql .= " WHERE status = " . $pdo->quote($status);
+        }
+        $sql .= " ORDER BY created_at DESC";
+        return $pdo->query($sql)->fetchAll();
     } catch (PDOException $e) {
         return [];
     }
@@ -22,8 +27,8 @@ function get_all_feedback($pdo) {
  */
 function add_feedback($pdo, $data) {
     try {
-        $sql = "INSERT INTO feedback (customer_name, email, rating, comment, status) 
-                VALUES (:customer_name, :email, :rating, :comment, :status)";
+        $sql = "INSERT INTO feedback (name, email, rating, review_text, status) 
+                VALUES (:name, :email, :rating, :review_text, :status)";
         $stmt = $pdo->prepare($sql);
         return $stmt->execute($data);
     } catch (PDOException $e) {
@@ -36,6 +41,7 @@ function add_feedback($pdo, $data) {
  */
 function moderate_feedback($pdo, $id, $status) {
     try {
+        $status = strtolower($status);
         $stmt = $pdo->prepare("UPDATE feedback SET status = ? WHERE id = ?");
         return $stmt->execute([$status, $id]);
     } catch (PDOException $e) {
@@ -57,7 +63,7 @@ function get_feedback_stats($pdo) {
         $stats['five_star'] = $pdo->query("SELECT COUNT(*) FROM feedback WHERE rating = 5")->fetchColumn();
         
         // Pending Reviews
-        $stats['pending'] = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status = 'Pending'")->fetchColumn();
+        $stats['pending'] = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status = 'pending'")->fetchColumn();
         
         // Average Rating
         $stats['average'] = $pdo->query("SELECT AVG(rating) FROM feedback")->fetchColumn() ?: 0;

@@ -27,7 +27,9 @@ $dishes = array_filter($all_dishes, function($d) {
     <div class="flex flex-wrap justify-center gap-6 md:gap-12 border-b border-gray-200 pb-4">
         <a class="nav-tab text-luxe-rose font-medium transition-colors duration-300 cursor-pointer" onclick="filterMenu(event, 'all')">All Dishes</a>
         <?php foreach ($categories as $cat): ?>
+        <?php if (($cat['slug'] ?? '') !== 'uncategorized'): ?>
         <a class="nav-tab text-gray-500 hover:text-luxe-charcoal transition-colors duration-300 cursor-pointer" onclick="filterMenu(event, '<?= strtolower(str_replace(' ', '-', $cat['name'])) ?>')"><?= e($cat['name']) ?></a>
+        <?php endif; ?>
         <?php endforeach; ?>
     </div>
 </section>
@@ -37,6 +39,7 @@ $dishes = array_filter($all_dishes, function($d) {
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-0" data-purpose="menu-listing">
     
     <?php foreach ($categories as $cat): ?>
+    <?php if (($cat['slug'] ?? '') !== 'uncategorized'): ?>
     <?php 
     $cat_id = strtolower(str_replace(' ', '-', $cat['name']));
     $cat_dishes = array_filter($dishes, function($d) use ($cat) {
@@ -60,6 +63,7 @@ $dishes = array_filter($all_dishes, function($d) {
             <?php endforeach; ?>
         </div>
     </div>
+    <?php endif; ?>
     <?php endforeach; ?>
 
 </section>

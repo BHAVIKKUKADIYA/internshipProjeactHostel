@@ -31,6 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $dishes = get_all_dishes($pdo);
 $categories = get_all_categories($pdo);
 $menu_stats = get_menu_stats($pdo);
+
+// Handle Category Deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_category') {
+    $cat_id = $_POST['category_id'] ?? null;
+    if ($cat_id && delete_category($pdo, $cat_id)) {
+        redirect('menumanage.php?success=category_deleted');
+    } else {
+        $error = "Failed to delete category. It might be the 'Uncategorized' category.";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,10 +57,13 @@ $menu_stats = get_menu_stats($pdo);
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -62,7 +75,7 @@ $menu_stats = get_menu_stats($pdo);
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -82,7 +95,7 @@ include '../includes/admin_pageHeader.php';
 ?>
 <p class="text-luxe-dark/50 text-base mt-2">Manage dishes, categories, pricing and visibility.</p>
 </div>
-<button onclick="window.location.href='addnewdish.php'" class="flex items-center gap-2 bg-primary hover:bg-[#b56b6b] text-white px-7 py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0">
+<button onclick="window.location.href='addnewdish.php'" class="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white px-7 py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0">
 <span class="material-symbols-outlined">add</span>
 <span>Add New Dish</span>
 </button>
@@ -130,17 +143,23 @@ include '../includes/admin_pageHeader.php';
 <div class="flex items-center gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
 <button onclick="filterCategory('All Items', this)" class="category-btn active px-6 py-2.5 rounded-full bg-primary text-white text-sm font-bold shadow-md shadow-primary/20 transition-all whitespace-nowrap">All Items</button>
 <?php foreach ($categories as $cat): ?>
+<?php if (($cat['slug'] ?? '') !== 'uncategorized'): ?>
 <button onclick="filterCategory('<?= e($cat['slug'] ?? '') ?>', this)" class="category-btn px-6 py-2.5 rounded-full bg-white border border-primary/10 text-luxe-dark/60 text-sm font-semibold hover:border-primary/30 transition-all whitespace-nowrap"><?= e($cat['name'] ?? '') ?></button>
+<?php endif; ?>
 <?php endforeach; ?>
 <button onclick="window.location.href='addNewCategory.php'" class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#fcf9f7] border border-dashed border-primary/40 text-primary text-sm font-bold hover:bg-primary/5 transition-all whitespace-nowrap">
 <span class="material-symbols-outlined text-lg">add</span>
 <span>Add Category</span>
 </button>
-</div><div class="bg-white rounded-2xl shadow-soft overflow-hidden border border-primary/5 shadow-xl shadow-primary/5 border-white">
+<button onclick="openDeleteCategoryModal()" class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-50 border border-dashed border-red-200 text-red-500 text-sm font-bold hover:bg-red-100 transition-all whitespace-nowrap">
+<span class="material-symbols-outlined text-lg">delete</span>
+<span>Delete Category</span>
+</button>
+</div><div class="bg-white rounded-2xl shadow-soft overflow-hidden border border-luxe-border shadow-xl shadow-primary/5">
 <div class="overflow-x-auto">
 <table class="w-full text-left">
 <thead>
-<tr class="bg-primary/[0.02] text-luxe-dark/50 uppercase text-[10px] tracking-[0.15em] font-bold border-b border-primary/5">
+<tr class="bg-luxe-beige/50 text-luxe-rose uppercase text-[10px] tracking-[0.15em] font-bold border-b border-luxe-border">
 <th class="px-8 py-5">Image</th>
 <th class="px-4 py-5">Dish Name</th>
 <th class="px-4 py-5">Category</th>
@@ -149,7 +168,7 @@ include '../includes/admin_pageHeader.php';
 <th class="px-8 py-5 text-right">Actions</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-primary/5" id="menuTableBody">
+<tbody class="divide-y divide-luxe-border/50" id="menuTableBody">
 <?php foreach ($dishes as $dish): ?>
 <tr class="table-row-hover group menu-row" data-category="<?= e($dish['category_slug'] ?? '') ?>" data-status="<?= isset($dish['is_visible']) && $dish['is_visible'] ? 'Visible' : 'Hidden' ?>" data-price="<?= $dish['price'] ?>">
 <td class="px-8 py-5">
@@ -183,7 +202,7 @@ if ($isVisible):
 </td>
 <td class="px-8 py-5 text-right">
 <div class="flex items-center justify-end gap-2">
-<button onclick="openEditModal(this)" class="w-9 h-9 rounded-xl bg-[#fcf9f7] text-luxe-dark/60 hover:text-primary hover:bg-primary/10 flex items-center justify-center transition-all border border-primary/5" data-id="<?= $dish['id'] ?>">
+<button onclick="openEditModal(this)" class="w-9 h-9 rounded-xl bg-luxe-beige/30 text-luxe-dark/60 hover:text-primary hover:bg-primary/10 flex items-center justify-center transition-all border border-luxe-border" data-id="<?= $dish['id'] ?>">
 <span class="material-symbols-outlined text-[20px]">edit</span>
 </button>
 <button onclick="if(confirm('Are you sure?')) window.location.href='?delete=<?= $dish['id'] ?>'" class="w-9 h-9 rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all border border-red-100">
@@ -197,25 +216,29 @@ if ($isVisible):
 </table>
 </div>
 <!-- Pagination -->
-<div class="p-8 flex items-center justify-between border-t border-primary/5 bg-primary/[0.01]">
-<p class="text-sm text-luxe-dark/40 font-medium count-display">Showing <span class="text-luxe-dark font-bold">1-<?= count($dishes) ?></span> of <span class="text-luxe-dark font-bold"><?= count($dishes) ?></span> items</p>
-<div class="flex items-center gap-1">
-<button class="w-10 h-10 rounded-xl flex items-center justify-center text-luxe-dark/40 hover:bg-primary/5 transition-all">
-<span class="material-symbols-outlined">chevron_left</span>
-</button>
-<button class="w-10 h-10 rounded-xl bg-primary text-white font-bold text-sm shadow-md shadow-primary/20">1</button>
-<button class="w-10 h-10 rounded-xl text-luxe-dark/60 font-semibold text-sm hover:bg-primary/5 transition-all">2</button>
-<button class="w-10 h-10 rounded-xl text-luxe-dark/60 font-semibold text-sm hover:bg-primary/5 transition-all">3</button>
-<button class="w-10 h-10 rounded-xl text-luxe-dark/60 font-semibold text-sm hover:bg-primary/5 transition-all">4</button>
-<button class="w-10 h-10 rounded-xl flex items-center justify-center text-luxe-dark/40 hover:bg-primary/5 transition-all">
-<span class="material-symbols-outlined">chevron_right</span>
-</button>
-</div>
+<div class="p-8 flex items-center justify-between border-t border-luxe-border bg-luxe-beige/10">
+    <div class="flex items-center gap-6">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">
+            Showing <span id="showingCount" class="text-luxe-dark font-bold">1-10</span> of <span id="totalCount" class="text-luxe-dark font-bold">100</span> entries
+        </p>
+        <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <span>Show</span>
+            <select id="pageSizeSelector" onchange="changePageSize(this.value)" class="bg-white border border-luxe-border rounded-xl px-3 py-1.5 outline-none focus:border-primary transition-all cursor-pointer text-sm font-bold text-luxe-dark shadow-sm">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+            </select>
+            <span>entries</span>
+        </div>
+    </div>
+    <div id="paginationButtons" class="flex items-center gap-2">
+        <!-- Buttons injected by JS -->
+    </div>
 </div>
 </div>
 <!-- Secondary Info Cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-<div class="bg-white p-6 rounded-2xl shadow-soft border border-primary/5 flex items-center gap-5">
+<div class="bg-white p-6 rounded-2xl shadow-soft border border-luxe-border flex items-center gap-5">
 <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
 <span class="material-symbols-outlined font-fill">visibility</span>
 </div>
@@ -224,7 +247,7 @@ if ($isVisible):
 <h4 class="text-2xl font-bold text-luxe-dark"><?= $menu_stats['active_dishes'] ?> Items</h4>
 </div>
 </div>
-<div class="bg-white p-6 rounded-2xl shadow-soft border border-primary/5 flex items-center gap-5">
+<div class="bg-white p-6 rounded-2xl shadow-soft border border-luxe-border flex items-center gap-5">
 <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
 <span class="material-symbols-outlined font-fill">star</span>
 </div>
@@ -233,7 +256,7 @@ if ($isVisible):
 <h4 class="text-2xl font-bold text-luxe-dark"><?= e($menu_stats['top_category_name']) ?></h4>
 </div>
 </div>
-<div class="bg-white p-6 rounded-2xl shadow-soft border border-primary/5 flex items-center gap-5">
+<div class="bg-white p-6 rounded-2xl shadow-soft border border-luxe-border flex items-center gap-5">
 <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center">
 <span class="material-symbols-outlined font-fill">trending_up</span>
 </div>
@@ -254,8 +277,7 @@ let currentSort = 'Sort by Price';
 
 function applyFilters() {
     const rows = Array.from(document.querySelectorAll('.menu-row'));
-    const countDisplay = document.querySelector('.count-display');
-    let visibleCount = 0;
+    let visibleRows = [];
 
     rows.forEach(row => {
         const dishName = row.querySelector('td:nth-child(2) .serif-title').textContent.toLowerCase();
@@ -268,8 +290,7 @@ function applyFilters() {
         const matchesStatus = currentStatus === 'All Status' || status === currentStatus;
 
         if (matchesSearch && matchesCategory && matchesStatus) {
-            row.style.display = '';
-            visibleCount++;
+            visibleRows.push(row);
         } else {
             row.style.display = 'none';
         }
@@ -278,25 +299,101 @@ function applyFilters() {
     // Handle Sorting
     if (currentSort !== 'Sort by Price') {
         const tbody = document.getElementById('menuTableBody');
-        const sortedRows = rows.sort((a, b) => {
+        visibleRows.sort((a, b) => {
             const priceA = parseFloat(a.dataset.price);
             const priceB = parseFloat(b.dataset.price);
             return currentSort === 'Price: Low to High' ? priceA - priceB : priceB - priceA;
         });
-        
-        // Only append visible rows if you want them at the top, or all rows if you want to maintain order
-        sortedRows.forEach(row => tbody.appendChild(row));
+        visibleRows.forEach(row => tbody.appendChild(row));
     }
 
-    if (countDisplay) {
-        countDisplay.innerHTML = `Showing <span class="text-luxe-dark font-bold">1-${visibleCount}</span> of <span class="text-luxe-dark font-bold">${rows.length}</span> items`;
-    }
+    currentPage = 1;
+    handlePagination(visibleRows);
 }
+
+// --- Pagination Logic ---
+let currentPage = 1;
+let rowsPerPage = 10;
+
+function handlePagination(visibleRows) {
+    const totalRows = visibleRows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    visibleRows.forEach((row, index) => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        row.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+
+    const startCount = totalRows > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0;
+    const endCount = Math.min(currentPage * rowsPerPage, totalRows);
+    document.getElementById('showingCount').innerText = `${startCount}-${endCount}`;
+    document.getElementById('totalCount').innerText = totalRows;
+
+    renderPaginationButtons(totalPages, visibleRows);
+}
+
+function renderPaginationButtons(totalPages, visibleRows) {
+    const container = document.getElementById('paginationButtons');
+    if (totalPages < 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+    
+    if (totalPages > 1) {
+        html += `
+            <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-10 h-10 rounded-xl flex items-center justify-center text-luxe-dark/40 hover:bg-primary/5 transition-all disabled:opacity-30">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+        `;
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `
+            <button onclick="goToPage(${i})" class="w-10 h-10 rounded-xl ${currentPage === i ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-luxe-dark/60 hover:bg-primary/5'} font-bold text-sm transition-all">
+                ${i}
+            </button>
+        `;
+    }
+
+    if (totalPages > 1) {
+        html += `
+            <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-10 h-10 rounded-xl flex items-center justify-center text-luxe-dark/40 hover:bg-primary/5 transition-all disabled:opacity-30">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        `;
+    }
+
+    container.innerHTML = html;
+    window.currentVisibleRows = visibleRows;
+}
+
+window.goToPage = function(page) {
+    currentPage = page;
+    handlePagination(window.currentVisibleRows);
+    const tableTop = document.querySelector('.overflow-x-auto');
+    if (tableTop) tableTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+window.changePageSize = function(size) {
+    rowsPerPage = parseInt(size);
+    currentPage = 1;
+    applyFilters();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    applyFilters();
+});
 
 function filterCategory(category, btn) {
     const buttons = document.querySelectorAll('.category-btn');
     const activeClasses = ['bg-primary', 'text-white', 'font-bold', 'shadow-md', 'shadow-primary/20'];
-    const inactiveClasses = ['bg-white', 'border', 'border-primary/10', 'text-luxe-dark/60', 'font-semibold', 'hover:border-primary/30'];
+    const inactiveClasses = ['bg-white', 'border', 'border-luxe-border', 'text-luxe-dark/60', 'font-semibold', 'hover:border-primary/30'];
 
     buttons.forEach(b => {
         b.classList.remove('active', ...activeClasses);
@@ -391,14 +488,14 @@ document.addEventListener('click', () => {
                 <!-- Dish Name -->
                 <div class="space-y-2">
                     <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Dish Name</label>
-                    <input name="name" id="editName" required class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" type="text" />
+                    <input name="name" id="editName" required class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" type="text" />
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <!-- Category -->
                     <div class="space-y-2">
                         <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Category</label>
-                        <select name="category_id" id="editCategory" required class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm appearance-none bg-white">
+                        <select name="category_id" id="editCategory" required class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm appearance-none bg-white">
                             <?php foreach ($categories as $cat): ?>
                                 <option value="<?= $cat['id'] ?>"><?= e($cat['name']) ?></option>
                             <?php endforeach; ?>
@@ -407,20 +504,20 @@ document.addEventListener('click', () => {
                     <!-- Price -->
                     <div class="space-y-2">
                         <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Price (?)</label>
-                        <input name="price" id="editPrice" required step="0.01" class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" type="number" />
+                        <input name="price" id="editPrice" required step="0.01" class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" type="number" />
                     </div>
                 </div>
                 
                 <!-- Description -->
                 <div class="space-y-2">
                     <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Description</label>
-                    <textarea name="description" id="editDesc" class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm resize-none" rows="2"></textarea>
+                    <textarea name="description" id="editDesc" class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm resize-none" rows="2"></textarea>
                 </div>
                 
                 <!-- Dish Image URL -->
                 <div class="space-y-2">
                     <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Image URL</label>
-                    <input name="image_url" id="editImageUrl" class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" type="text" />
+                    <input name="image_url" id="editImageUrl" class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" type="text" />
                 </div>
 
                 <!-- Visibility -->
@@ -434,7 +531,7 @@ document.addEventListener('click', () => {
             </div>
             
             <!-- Modal Footer -->
-            <div class="px-8 py-6 bg-primary/[0.02] border-t border-primary/5 flex items-center justify-end gap-3 shrink-0">
+            <div class="px-8 py-6 bg-luxe-beige/20 border-t border-luxe-border flex items-center justify-end gap-3 shrink-0">
                 <button onclick="closeEditModal()" type="button" class="px-6 py-2.5 text-sm font-bold text-luxe-dark/40 hover:text-luxe-dark transition-colors">Cancel</button>
                 <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-primary/30 transition-all duration-300 text-sm">
                     Save Changes
@@ -479,6 +576,73 @@ function closeEditModal() {
     document.getElementById('editDishModal').classList.add('hidden');
     currentEditRow = null;
 }
+
+// Delete Category Modal Logic
+function openDeleteCategoryModal() {
+    document.body.classList.add('overflow-hidden');
+    document.getElementById('deleteCategoryModal').classList.remove('hidden');
+}
+
+function closeDeleteCategoryModal() {
+    document.body.classList.remove('overflow-hidden');
+    document.getElementById('deleteCategoryModal').classList.add('hidden');
+}
+
+function confirmCategoryDelete() {
+    const select = document.getElementById('delete-category-select');
+    if (!select.value) {
+        alert('Please select a category to delete.');
+        return false;
+    }
+    return confirm('Are you sure you want to delete this category? This action cannot be undone.');
+}
 </script>
+
+<!-- Delete Category Modal -->
+<div id="deleteCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-luxe-dark/60 backdrop-blur-sm hidden overflow-hidden">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300">
+        <form method="POST" action="" onsubmit="return confirmCategoryDelete()" class="flex flex-col">
+            <input type="hidden" name="action" value="delete_category">
+            
+            <div class="px-8 py-6 border-b border-primary/5 flex items-center justify-between">
+                <div>
+                    <h3 class="serif-title text-2xl font-bold text-luxe-dark">Delete Category</h3>
+                    <p class="text-xs text-luxe-dark/40">Select a category to permanently delete.</p>
+                </div>
+                <button onclick="closeDeleteCategoryModal()" type="button" class="text-luxe-dark/40 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="p-8 space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Select Category</label>
+                    <select name="category_id" id="delete-category-select" required class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm appearance-none bg-white">
+                        <option value="">Choose a category...</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <?php if (($cat['slug'] ?? '') !== 'uncategorized'): ?>
+                                <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="p-4 bg-red-50 rounded-xl border border-red-100">
+                    <div class="flex gap-3">
+                        <span class="material-symbols-outlined text-red-500">warning</span>
+                        <p class="text-xs text-red-600 leading-relaxed font-medium">Are you sure? This action cannot be undone. All items in this category will be moved to "Uncategorized".</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-8 py-6 bg-red-50/10 border-t border-red-100 flex items-center justify-end gap-3 shrink-0">
+                <button onclick="closeDeleteCategoryModal()" type="button" class="px-6 py-2.5 text-sm font-bold text-luxe-dark/40 hover:text-luxe-dark transition-colors">Cancel</button>
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-red-500/20 transition-all duration-300 text-sm">
+                    Delete Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 </body></html>
 

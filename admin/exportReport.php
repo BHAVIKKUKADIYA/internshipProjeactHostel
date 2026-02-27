@@ -67,44 +67,40 @@ $total_stats = $pdo->query($stats_query)->fetch();
 <!DOCTYPE html>
 
 <html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>LUXE - Export to PDF Preview</title>
-<!-- Tailwind CSS CDN with Plugins -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Google Fonts: Playfair Display for Serifs, Inter for Sans-Serif -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
-<script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            luxe: {
-              ivory: '#F8F6F2',
-              rose: '#B76E79',
-              roseHover: '#a35d68',
-              charcoal: '#2B2B2B',
-              muted: '#717171',
-              border: '#E5E1DA'
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>LUXE - Export to PDF Preview</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
+                        'luxe-dark': '#2b2b2b',
+                        'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
+                        'luxe-charcoal': '#2b2b2b',
+                        'luxe-ivory': '#ffffff',
+                        'luxe-muted': '#707070',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
             }
-          },
-          fontFamily: {
-            serif: ['"Playfair Display"', 'serif'],
-            sans: ['Inter', 'sans-serif'],
-          }
         }
-      }
-    }
-  </script>
-<style data-purpose="typography">
-    body {
-      font-family: 'Inter', sans-serif;
-      color: #2B2B2B;
-    }
-    h1, h2, h3, .serif-text {
-      font-family: 'Playfair Display', serif;
-    }
-  </style>
+    </script>
+    <style data-purpose="typography">
+        body { font-family: 'Inter', sans-serif; color: #2b2b2b; }
+        h1, h2, h3, .serif-text { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
 <style data-purpose="custom-ui">
     .paper-shadow {
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
@@ -114,11 +110,11 @@ $total_stats = $pdo->query($stats_query)->fetch();
     }
     .toggle-checkbox:checked {
       right: 0;
-      border-color: #B76E79;
-      background-color: #B76E79;
+      border-color: #c67c7c;
+      background-color: #c67c7c;
     }
     .toggle-checkbox:checked + .toggle-label {
-      background-color: #B76E79;
+      background-color: #c67c7c;
     }
   </style>
 </head>
@@ -159,10 +155,10 @@ $total_stats = $pdo->query($stats_query)->fetch();
 <div class="w-full h-32 flex items-end justify-between px-2 border-b border-luxe-border pt-4">
 <!-- Simulated Line Chart -->
 <svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 500 100">
-<path d="M0,80 Q50,70 100,40 T200,50 T300,20 T400,30 T500,10" fill="none" stroke="#B76E79" stroke-width="2"></path>
-<circle cx="100" cy="40" fill="#B76E79" r="3"></circle>
-<circle cx="300" cy="20" fill="#B76E79" r="3"></circle>
-<circle cx="500" cy="10" fill="#B76E79" r="3"></circle>
+<path d="M0,80 Q50,70 100,40 T200,50 T300,20 T400,30 T500,10" fill="none" stroke="#c67c7c" stroke-width="2"></path>
+<circle cx="100" cy="40" fill="#c67c7c" r="3"></circle>
+<circle cx="300" cy="20" fill="#c67c7c" r="3"></circle>
+<circle cx="500" cy="10" fill="#c67c7c" r="3"></circle>
 </svg>
 </div>
 <div class="flex justify-between mt-2 text-[9px] text-luxe-muted font-medium uppercase">
@@ -245,9 +241,9 @@ $total_stats = $pdo->query($stats_query)->fetch();
 <div data-purpose="setting-field">
 <label class="block text-xs font-semibold text-luxe-charcoal uppercase tracking-wider mb-2">File Format</label>
 <div class="grid grid-cols-3 gap-2">
-<button onclick="changeFormat('pdf')" class="format-btn py-2 px-3 text-xs font-medium rounded border <?= $format === 'pdf' ? 'border-luxe-rose bg-luxe-rose text-white' : 'border-luxe-border bg-white text-luxe-charcoal hover:bg-stone-50' ?>">PDF</button>
-<button onclick="changeFormat('excel')" class="format-btn py-2 px-3 text-xs font-medium rounded border <?= $format === 'excel' ? 'border-luxe-rose bg-luxe-rose text-white' : 'border-luxe-border bg-white text-luxe-charcoal hover:bg-stone-50' ?>">Excel</button>
-<button onclick="changeFormat('csv')" class="format-btn py-2 px-3 text-xs font-medium rounded border <?= $format === 'csv' ? 'border-luxe-rose bg-luxe-rose text-white' : 'border-luxe-border bg-white text-luxe-charcoal hover:bg-stone-50' ?>">CSV</button>
+<button onclick="changeFormat('pdf')" class="format-btn py-2 px-3 text-xs font-medium rounded border <?= $format === 'pdf' ? 'border-primary bg-primary text-white' : 'border-luxe-border bg-white text-luxe-charcoal hover:bg-stone-50' ?>">PDF</button>
+<button onclick="changeFormat('excel')" class="format-btn py-2 px-3 text-xs font-medium rounded border <?= $format === 'excel' ? 'border-primary bg-primary text-white' : 'border-luxe-border bg-white text-luxe-charcoal hover:bg-stone-50' ?>">Excel</button>
+<button onclick="changeFormat('csv')" class="format-btn py-2 px-3 text-xs font-medium rounded border <?= $format === 'csv' ? 'border-primary bg-primary text-white' : 'border-luxe-border bg-white text-luxe-charcoal hover:bg-stone-50' ?>">CSV</button>
 </div>
 <script>
 function changeFormat(f) {
@@ -296,7 +292,7 @@ function changeFormat(f) {
 </div>
 <!-- Action Buttons -->
 <div class="mt-8 space-y-3 pt-6 border-t border-luxe-border" data-purpose="actions">
-<button onclick="window.print()" class="w-full bg-luxe-rose text-white py-3 rounded-md font-semibold text-sm hover:bg-luxe-roseHover transition-colors shadow-lg shadow-luxe-rose/20">
+<button onclick="window.print()" class="w-full bg-primary text-white py-3 rounded-md font-semibold text-sm hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20">
           Download <?= strtoupper($format) ?>
         </button>
 <button onclick="window.location.href='reportgenrate.php'" class="w-full bg-transparent border border-luxe-border text-luxe-muted py-3 rounded-md font-semibold text-sm hover:bg-stone-50 transition-colors">

@@ -18,7 +18,41 @@ if (strtolower(trim($status)) === 'approved') {
 ?>
 <!DOCTYPE html>
 <html lang="en"><head>
-... (rest of head)
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Details | LUXE Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
+                        'luxe-dark': '#2b2b2b',
+                        'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
+                        'background-light': '#fdfbf9',
+                        'luxe-charcoal': '#2b2b2b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4efec; }
+        h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
 <body class="min-h-screen flex items-center justify-center p-4">
 <!-- BEGIN: Feedback Details Modal Container -->
 <div class="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4" data-purpose="modal-overlay">
@@ -27,11 +61,11 @@ if (strtolower(trim($status)) === 'approved') {
 <!-- BEGIN: Modal Header -->
 <header class="px-8 pt-8 pb-4 flex justify-between items-start">
 <div class="space-y-1">
-<p class="text-[10px] uppercase tracking-widest text-luxe-text-muted font-semibold">Review Details</p>
-<h1 class="text-3xl serif-title text-luxe-text-dark">Guest Feedback</h1>
+<p class="text-[10px] uppercase tracking-widest text-[#8A8A8A] font-semibold">Review Details</p>
+<h1 class="text-3xl serif-title text-luxe-dark">Guest Feedback</h1>
 </div>
 <!-- Close Button -->
-<button onclick="window.history.back()" class="text-luxe-text-muted hover:text-luxe-text-dark transition-colors p-2">
+<button onclick="window.history.back()" class="text-luxe-grey-text hover:text-luxe-dark transition-colors p-2">
 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>
@@ -44,49 +78,49 @@ if (strtolower(trim($status)) === 'approved') {
 <section class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-luxe-border pb-8">
 <div class="flex items-center gap-4">
 <!-- Avatar Circle -->
-<div class="h-16 w-16 rounded-full bg-luxe-rose-light flex items-center justify-center text-luxe-rose font-serif text-xl border border-luxe-rose/10">
+<div class="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-serif text-xl border border-primary/10">
               <?= htmlspecialchars($initials) ?>
             </div>
 <div>
-<h2 class="text-xl font-semibold text-luxe-text-dark"><?= htmlspecialchars($name) ?></h2>
-<p class="text-sm text-luxe-text-muted"><?= htmlspecialchars($email) ?></p>
+<h2 class="text-xl font-semibold text-luxe-dark"><?= htmlspecialchars($name) ?></h2>
+<p class="text-sm text-luxe-grey-text"><?= htmlspecialchars($email) ?></p>
 </div>
 </div>
 <div class="flex flex-col md:items-end gap-1">
-<div class="flex gap-1 text-luxe-star">
+<div class="flex gap-1 text-primary">
 <!-- 5-Star Rating Display -->
 <svg class="w-5 h-5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
 <svg class="w-5 h-5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
 <svg class="w-5 h-5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
 <svg class="w-5 h-5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-<svg class="w-5 h-5 text-luxe-star-empty fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+<svg class="w-5 h-5 text-gray-300 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
 </div>
-<p class="text-xs font-medium text-luxe-text-muted uppercase tracking-wider"><?= htmlspecialchars($date) ?></p>
+<p class="text-xs font-medium text-luxe-grey-text uppercase tracking-wider"><?= htmlspecialchars($date) ?></p>
 </div>
 </section>
 <!-- Section: Feedback Message -->
 <section class="space-y-4">
-<h3 class="text-xs font-bold uppercase tracking-widest text-luxe-text-muted">Review Content</h3>
-<p class="text-luxe-text-dark leading-relaxed text-lg italic serif-title">
+<h3 class="text-xs font-bold uppercase tracking-widest text-luxe-grey-text">Review Content</h3>
+<p class="text-luxe-dark leading-relaxed text-lg italic serif-title">
             "<?= htmlspecialchars($review) ?>"
           </p>
 </section>
 <!-- Section: Metadata Grid -->
 <section class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4">
 <div data-purpose="meta-item">
-<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-text-muted mb-1">Visit Date</p>
-<p class="text-sm font-semibold text-luxe-text-dark"><?= htmlspecialchars($date) ?></p>
+<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-grey-text mb-1">Visit Date</p>
+<p class="text-sm font-semibold text-luxe-dark"><?= htmlspecialchars($date) ?></p>
 </div>
 <div data-purpose="meta-item">
-<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-text-muted mb-1">Table No.</p>
-<p class="text-sm font-semibold text-luxe-text-dark">14 (Window Side)</p>
+<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-grey-text mb-1">Table No.</p>
+<p class="text-sm font-semibold text-luxe-dark">14 (Window Side)</p>
 </div>
 <div data-purpose="meta-item">
-<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-text-muted mb-1">Service Staff</p>
-<p class="text-sm font-semibold text-luxe-text-dark">Julian S.</p>
+<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-grey-text mb-1">Service Staff</p>
+<p class="text-sm font-semibold text-luxe-dark">Julian S.</p>
 </div>
 <div data-purpose="meta-item">
-<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-text-muted mb-1">Status</p>
+<p class="text-[10px] font-bold uppercase tracking-widest text-luxe-grey-text mb-1">Status</p>
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusClasses ?>">
               <?= htmlspecialchars($status) ?>
             </span>
@@ -96,10 +130,10 @@ if (strtolower(trim($status)) === 'approved') {
 <!-- END: Modal Content -->
 <!-- BEGIN: Modal Footer / Actions -->
 <footer class="px-8 py-8 bg-luxe-beige/50 border-t border-luxe-border flex flex-col sm:flex-row justify-end items-center gap-4">
-<button onclick="window.history.back()" class="w-full sm:w-auto px-8 py-3 rounded-lg border-2 border-luxe-rose text-luxe-rose font-semibold hover:bg-luxe-rose hover:text-white transition-all duration-300 active:scale-95">
+<button onclick="window.history.back()" class="w-full sm:w-auto px-8 py-3 rounded-lg border-2 border-primary text-primary font-semibold hover:bg-primary hover:text-white transition-all duration-300 active:scale-95">
           Reject Review
         </button>
-<button onclick="window.history.back()" class="w-full sm:w-auto px-8 py-3 rounded-lg bg-luxe-rose text-white font-semibold hover:bg-[#b07270] shadow-lg shadow-luxe-rose/20 transition-all duration-300 active:scale-95">
+<button onclick="window.history.back()" class="w-full sm:w-auto px-8 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all duration-300 active:scale-95">
           Approve Review
         </button>
 </footer>

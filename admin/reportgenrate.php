@@ -12,11 +12,54 @@ $report_type = $_GET['report_type'] ?? 'All Reports';
 
 $data_to_display = [];
 
-if ($report_type === 'Feedback / Reviews') {
+if ($report_type === 'All Reports') {
+    // 1. Get Reservations
+    $res_filters = ['search' => $search, 'start_date' => $from_date, 'end_date' => $to_date, 'status' => 'All Statuses'];
+    $reservations = get_all_reservations($pdo, $res_filters);
+    foreach($reservations as &$r) $r['row_type'] = 'Reservation';
+
+    // 2. Get Feedback
+    $sql_fb = "SELECT * FROM feedback WHERE 1=1";
+    $fb_params = [];
+    if (!empty($search)) {
+        $sql_fb .= " AND (name LIKE ? OR email LIKE ? OR review_text LIKE ?)";
+        $fb_params[] = "%$search%"; $fb_params[] = "%$search%"; $fb_params[] = "%$search%";
+    }
+    if (!empty($from_date) && !empty($to_date)) {
+        $sql_fb .= " AND created_at BETWEEN ? AND ?";
+        $fb_params[] = $from_date . " 00:00:00";
+        $fb_params[] = $to_date . " 23:59:59";
+    }
+    $stmt_fb = $pdo->prepare($sql_fb);
+    $stmt_fb->execute($fb_params);
+    $feedbacks = $stmt_fb->fetchAll();
+    foreach($feedbacks as &$f) $f['row_type'] = 'Feedback';
+
+    // 3. Get Popular Food
+    $sql_menu = "SELECT * FROM menu_items WHERE 1=1";
+    $menu_params = [];
+    if (!empty($search)) {
+        $sql_menu .= " AND (name LIKE ? OR description LIKE ?)";
+        $menu_params[] = "%$search%"; $menu_params[] = "%$search%";
+    }
+    $stmt_menu = $pdo->prepare($sql_menu);
+    $stmt_menu->execute($menu_params);
+    $menu_items = $stmt_menu->fetchAll();
+    foreach($menu_items as &$m) $m['row_type'] = 'Popular Food';
+
+    $data_to_display = array_merge($reservations, $feedbacks, $menu_items);
+    
+    // Normalized sort by date
+    usort($data_to_display, function($a, $b) {
+        $dateA = $a['reservation_date'] ?? substr($a['created_at'] ?? '', 0, 10) ?? '0000-00-00';
+        $dateB = $b['reservation_date'] ?? substr($b['created_at'] ?? '', 0, 10) ?? '0000-00-00';
+        return strcmp($dateB, $dateA);
+    });
+} elseif ($report_type === 'Feedback / Reviews') {
     $sql = "SELECT * FROM feedback WHERE 1=1";
     $params = [];
     if (!empty($search)) {
-        $sql .= " AND (customer_name LIKE ? OR email LIKE ? OR comment LIKE ?)";
+        $sql .= " AND (name LIKE ? OR email LIKE ? OR review_text LIKE ?)";
         $params[] = "%$search%"; $params[] = "%$search%"; $params[] = "%$search%";
     }
     if (!empty($from_date) && !empty($to_date)) {
@@ -87,10 +130,23 @@ $trend = $last_month > 0 ? round((($this_month - $last_month) / $last_month) * 1
 // Most ordered (placeholder until orders table is confirmed)
 $most_ordered = ['Wagyu Beef', 'Grilled Salmon', 'Truffle Pasta'];
 
-// Peak Hour
-$peak_hour_query = "SELECT reservation_time, COUNT(*) as count FROM reservations GROUP BY reservation_time ORDER BY count DESC LIMIT 1";
-$peak_hour_data = $pdo->query($peak_hour_query)->fetch();
-$peak_hour = $peak_hour_data ? date("h:i P", strtotime($peak_hour_data['reservation_time'])) : 'N/A';
+// Peak Hour (Filtered)
+$peak_hour_query = "SELECT reservation_time, COUNT(*) as count FROM reservations WHERE 1=1";
+$peak_params = [];
+if (!empty($from_date) && !empty($to_date)) {
+    $peak_hour_query .= " AND reservation_date BETWEEN ? AND ?";
+    $peak_params[] = $from_date;
+    $peak_params[] = $to_date;
+}
+if (!empty($search)) {
+    $peak_hour_query .= " AND (guest_name LIKE ? OR email LIKE ? OR phone LIKE ?)";
+    $peak_params[] = "%$search%"; $peak_params[] = "%$search%"; $peak_params[] = "%$search%";
+}
+$peak_hour_query .= " GROUP BY reservation_time ORDER BY count DESC LIMIT 1";
+$stmt_peak = $pdo->prepare($peak_hour_query);
+$stmt_peak->execute($peak_params);
+$peak_hour_data = $stmt_peak->fetch();
+$peak_hour = $peak_hour_data ? date("H:i", strtotime($peak_hour_data['reservation_time'])) : 'N/A';
 
 // Repeat Customers
 $repeat_query = "SELECT COUNT(*) FROM (SELECT email FROM reservations GROUP BY email HAVING COUNT(*) > 1) as repeats";
@@ -113,12 +169,13 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
-                        'rose-accent': '#b76e79',
-                        'rose-accent-hover': '#a35d68',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -130,7 +187,7 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -148,148 +205,28 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
         $title = "Report Generation";
         include '../includes/admin_pageHeader.php';
         ?>
-        <p class="text-gray-500 mt-1">Generate analytics and performance reports for restaurant management.</p>
+        <p class="text-luxe-grey-text mt-1">Generate analytics and performance reports for restaurant management.</p>
     </div>
 </header>
-<!-- Report Configuration Cards -->
-<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-<!-- Daily Booking Report -->
-<div class="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-rose-accent/5 hover:shadow-md transition-shadow hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-rose-accent/10 rounded-lg text-rose-accent">
-<span class="material-symbols-outlined">event_available</span>
-</div>
-<span class="text-[10px] font-bold text-rose-accent bg-rose-accent/10 px-2 py-1 rounded uppercase">Daily</span>
-</div>
-<h3 class="font-bold text-lg mb-2">Daily Booking Report</h3>
-<p class="text-xs text-slate-500 mb-4">Summary: Total <?= $daily_count ?> bookings today</p>
-<div class="space-y-4">
-<input id="daily_date" class="w-full rounded-lg border-rose-accent/20 focus:ring-rose-accent focus:border-rose-accent bg-background-light/30 text-sm py-2" type="date" value="<?= date('Y-m-d') ?>"/>
-<button onclick="updateDailyReport()" class="w-full bg-rose-accent text-white py-2 rounded-lg text-sm font-bold hover:bg-rose-accent/90 transition-colors">Generate</button>
-</div>
-</div>
-<!-- Monthly Reservation Report -->
-<div class="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-rose-accent/5 hover:shadow-md transition-shadow hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-rose-accent/10 rounded-lg text-rose-accent">
-<span class="material-symbols-outlined">calendar_month</span>
-</div>
-<span class="text-[10px] font-bold text-rose-accent bg-rose-accent/10 px-2 py-1 rounded uppercase">Monthly</span>
-</div>
-<h3 class="font-bold text-lg mb-2">Monthly Reservation Report</h3>
-<p class="text-xs <?= $trend >= 0 ? 'text-emerald-600' : 'text-rose-600' ?> mb-4 flex items-center gap-1">
-<span class="material-symbols-outlined text-sm"><?= $trend >= 0 ? 'trending_up' : 'trending_down' ?></span> Trend: <?= $trend >= 0 ? '+' : '' ?><?= $trend ?>% from last month
-                    </p>
-<div class="space-y-4">
-<select id="monthly_month" class="w-full rounded-lg border-rose-accent/20 focus:ring-rose-accent focus:border-rose-accent bg-background-light/30 text-sm py-2">
-<option value="<?= date('Y-m') ?>"><?= date('F Y') ?></option>
-<option value="<?= date('Y-m', strtotime('-1 month')) ?>"><?= date('F Y', strtotime('-1 month')) ?></option>
-<option value="<?= date('Y-m', strtotime('-2 months')) ?>"><?= date('F Y', strtotime('-2 months')) ?></option>
-</select>
-<button onclick="updateMonthlyReport()" class="w-full bg-rose-accent text-white py-2 rounded-lg text-sm font-bold hover:bg-rose-accent/90 transition-colors">Generate</button>
-</div>
-</div>
-<!-- Most Ordered Food -->
-<div class="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-rose-accent/5 hover:shadow-md transition-shadow hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-rose-accent/10 rounded-lg text-rose-accent">
-<span class="material-symbols-outlined">restaurant_menu</span>
-</div>
-<span class="text-[10px] font-bold text-rose-accent bg-rose-accent/10 px-2 py-1 rounded uppercase">Menu</span>
-</div>
-<h3 class="font-bold text-lg mb-2">Most Ordered Food</h3>
-<div class="text-[11px] text-slate-500 mb-4 flex flex-wrap gap-2">
-<?php foreach ($most_ordered as $item): ?>
-<span class="px-2 py-0.5 bg-slate-100 dark:bg-zinc-700 rounded-full"><?= $item ?></span>
-<?php endforeach; ?>
-</div>
-<div class="space-y-4">
-<select id="menu_limit" class="w-full rounded-lg border-rose-accent/20 focus:ring-rose-accent focus:border-rose-accent bg-background-light/30 text-sm py-2">
-<option value="10">Top 10 Dishes</option>
-<option value="25">Top 25 Dishes</option>
-<option value="100">All Items</option>
-</select>
-<button onclick="updateMenuReport()" class="w-full bg-rose-accent text-white py-2 rounded-lg text-sm font-bold hover:bg-rose-accent/90 transition-colors">Generate</button>
-</div>
-</div>
-<!-- Peak Hour Booking -->
-<div class="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-rose-accent/5 hover:shadow-md transition-shadow hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-rose-accent/10 rounded-lg text-rose-accent">
-<span class="material-symbols-outlined">schedule</span>
-</div>
-<span class="text-[10px] font-bold text-rose-accent bg-rose-accent/10 px-2 py-1 rounded uppercase">Analytics</span>
-</div>
-<h3 class="font-bold text-lg mb-2">Peak Hour Booking</h3>
-<p class="text-xs text-slate-500 mb-4">Busiest window: <?= $peak_hour ?></p>
-<div class="space-y-4">
-<div class="flex gap-2">
-<input id="analytics_start" class="w-1/2 rounded-lg border-rose-accent/20 focus:ring-rose-accent focus:border-rose-accent bg-background-light/30 text-xs py-2" type="time" value="17:00"/>
-<input id="analytics_end" class="w-1/2 rounded-lg border-rose-accent/20 focus:ring-rose-accent focus:border-rose-accent bg-background-light/30 text-xs py-2" type="time" value="23:00"/>
-</div>
-<button onclick="updateAnalyticsReport()" class="w-full bg-rose-accent text-white py-2 rounded-lg text-sm font-bold hover:bg-rose-accent/90 transition-colors">Generate</button>
-</div>
-</div>
-<!-- Customer Visit Frequency -->
-<div class="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-sm border border-rose-accent/5 hover:shadow-md transition-shadow hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between">
-<div class="flex justify-between items-start mb-4">
-<div class="p-2 bg-rose-accent/10 rounded-lg text-rose-accent">
-<span class="material-symbols-outlined">group_work</span>
-</div>
-<span class="text-[10px] font-bold text-rose-accent bg-rose-accent/10 px-2 py-1 rounded uppercase">Loyalty</span>
-</div>
-<h3 class="font-bold text-lg mb-2">Customer Visit Frequency</h3>
-<div class="mb-4">
-<div class="flex justify-between text-[10px] font-bold mb-1">
-<span>Repeat</span>
-<span><?= $repeat_percent ?>%</span>
-</div>
-<div class="w-full bg-slate-100 dark:bg-zinc-700 h-1.5 rounded-full overflow-hidden">
-<div class="bg-rose-accent h-full" style="width: <?= $repeat_percent ?>%"></div>
-</div>
-</div>
-<div class="space-y-4">
-<select id="loyalty_period" class="w-full rounded-lg border-rose-accent/20 focus:ring-rose-accent focus:border-rose-accent bg-background-light/30 text-sm py-2">
-<option value="3">Last Quarter</option>
-<option value="6">Last 6 Months</option>
-<option value="12">Year to Date</option>
-</select>
-<button onclick="updateLoyaltyReport()" class="w-full bg-rose-accent text-white py-2 rounded-lg text-sm font-bold hover:bg-rose-accent/90 transition-colors">Generate</button>
-</div>
-</div>
-<!-- Blank / Additional Action -->
-<div class="bg-rose-accent/5 border-2 border-dashed border-rose-accent/20 p-6 rounded-2xl flex flex-col items-center justify-center text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300 h-full flex flex-col justify-between"><div class="group cursor-pointer flex flex-col items-center justify-center text-center py-10">
-<span class="material-symbols-outlined text-rose-accent/40 text-4xl mb-2 group-hover:scale-110 group-hover:text-rose-accent transition-all duration-300">add_circle</span>
-<p class="text-sm font-bold text-rose-accent/60 group-hover:text-rose-accent">Create Custom Report</p>
-</div></div>
-</section>
 <!-- Preview Section Area -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-<div class="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-rose-accent/5 shadow-sm">
-<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Revenue</p>
-<p class="text-xl font-bold text-charcoal dark:text-white">?<?= number_format($total_stats['total_revenue'] ?? 0) ?></p>
-</div>
 <div class="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-rose-accent/5 shadow-sm">
 <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Bookings</p>
 <p class="text-xl font-bold text-charcoal dark:text-white"><?= $total_stats['total_bookings'] ?? 0 ?></p>
 </div>
 <div class="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-rose-accent/5 shadow-sm">
-<p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Avg Order</p>
-<p class="text-xl font-bold text-charcoal dark:text-white">?<?= number_format($total_stats['avg_order'] ?? 0, 2) ?></p>
-</div>
-<div class="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-rose-accent/5 shadow-sm">
 <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Peak Hour</p>
-<p class="text-xl font-bold text-charcoal dark:text-white"><?= $peak_hour ?></p>
+<p id="peak-hour-value" class="text-xl font-bold text-charcoal dark:text-white"><?= $peak_hour ?></p>
 </div>
-</div><section class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-rose-accent/5 overflow-hidden">
+</div><section class="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-luxe-border overflow-hidden">
 <!-- Toolbar -->
-<div class="px-6 py-4 border-b border-rose-accent/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="px-6 py-4 border-b border-luxe-border flex flex-col md:flex-row justify-between items-center gap-4">
     <div class="flex items-center gap-2 w-full md:w-auto">
         <div class="relative w-full md:w-96">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-            <input id="search_input" class="w-full h-10 pl-10 pr-4 rounded-xl border-slate-200 dark:border-zinc-700 dark:bg-zinc-900 focus:ring-rose-accent text-sm" placeholder="Search report data..." type="text" value="<?= htmlspecialchars($search) ?>"/>
+            <input id="search_input" class="w-full h-10 pl-10 pr-4 rounded-xl border border-luxe-border dark:border-zinc-700 dark:bg-zinc-900 focus:ring-primary focus:border-primary text-sm" placeholder="Search report data..." type="text" value="<?= htmlspecialchars($search) ?>"/>
         </div>
-        <button onclick="applyFilters()" class="h-10 px-4 bg-rose-accent text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-accent/90 transition-all shadow-sm">Search</button>
+        <button onclick="applyFilters()" class="h-10 px-4 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-hover transition-all shadow-sm">Search</button>
     </div>
     <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
         <button id="exportBtn" class="h-10 px-5 flex items-center justify-center gap-2 bg-white dark:bg-zinc-900 text-charcoal dark:text-white border border-rose-accent/10 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-rose-accent/5 transition-all shadow-sm">
@@ -300,12 +237,12 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
             <span class="material-symbols-outlined text-sm">description</span>
             Export Excel
         </button>
-        <button id="printBtn" class="h-10 px-6 flex items-center justify-center gap-2 bg-rose-accent/10 text-rose-accent rounded-xl text-xs font-black whitespace-nowrap hover:bg-rose-accent/20 transition-all uppercase tracking-wide border border-rose-accent/20 shadow-sm">
+        <button id="printBtn" class="h-10 px-6 flex items-center justify-center gap-2 bg-primary/10 text-primary rounded-xl text-xs font-black whitespace-nowrap hover:bg-primary/20 transition-all uppercase tracking-wide border border-primary/20 shadow-sm">
             <span class="material-symbols-outlined text-sm">print</span>
             Print Report
         </button>
     </div>
-</div><div class="px-6 py-4 bg-background-light/30 border-b border-rose-accent/10 flex flex-wrap gap-4 items-end">
+</div><div class="px-6 py-4 bg-background-light/30 border-b border-luxe-border flex flex-wrap gap-4 items-end">
     <div class="flex flex-col gap-1.5">
         <label class="text-[10px] font-bold text-rose-accent uppercase ml-1 tracking-wider">From Date</label>
         <input id="from_date" class="h-10 rounded-lg border-rose-accent/20 focus:ring-rose-accent bg-white dark:bg-zinc-900 text-xs px-3 w-40" type="date" value="<?= $from_date ?>"/>
@@ -320,9 +257,9 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
             <option <?= $report_type === 'All Reports' ? 'selected' : '' ?>>All Reports</option>
             <option <?= $report_type === 'Reservations' ? 'selected' : '' ?>>Reservations</option>
             <option <?= $report_type === 'Feedback / Reviews' ? 'selected' : '' ?>>Feedback / Reviews</option>
-            <option <?= $report_type === 'Revenue Summary' ? 'selected' : '' ?>>Revenue Summary</option>
+
             <option <?= $report_type === 'Popular Food' ? 'selected' : '' ?>>Popular Food</option>
-            <option <?= $report_type === 'Cancelled Reservations' ? 'selected' : '' ?>>Cancelled Reservations</option>
+
         </select>
     </div>
     <button onclick="applyFilters()" class="h-10 px-6 bg-charcoal text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-charcoal/90 transition-all shadow-sm flex items-center justify-center">Apply Filters</button>
@@ -330,7 +267,7 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
 <!-- Data Table -->
 <div class="overflow-x-auto">
 <table class="w-full text-left">
-<thead class="bg-background-light/50 dark:bg-zinc-900/50 border-b border-rose-accent/10 sticky top-0 z-10">
+<thead class="bg-luxe-beige/50 dark:bg-zinc-900/50 border-b border-luxe-border sticky top-0 z-10">
 <?php if ($report_type === 'Feedback / Reviews'): ?>
 <tr>
 <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-500">Date</th>
@@ -360,58 +297,120 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
 </tr>
 <?php endif; ?>
 </thead>
-<tbody class="divide-y divide-rose-accent/5">
+<tbody class="divide-y divide-luxe-border">
 <?php if (empty($data_to_display)): ?>
     <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No report data found for selected filters.</td></tr>
 <?php else: ?>
     <?php foreach ($data_to_display as $row): ?>
-    <tr class="hover:bg-rose-accent/5 transition-colors">
+    <tr class="hover:bg-primary/5 transition-colors" <?= (($row['row_type'] ?? '') === 'Reservation' || !isset($row['row_type'])) ? 'data-reservation-time="'.($row['reservation_time'] ?? '').'"' : '' ?>>
     <?php if ($report_type === 'Feedback / Reviews'): ?>
         <td class="px-6 py-4 text-sm whitespace-nowrap"><?= date("M d, Y", strtotime($row['created_at'])) ?></td>
-        <td class="px-6 py-4 text-sm font-medium"><?= htmlspecialchars($row['customer_name'] ?? 'N/A') ?></td>
+        <td class="px-6 py-4 text-sm font-medium"><?= htmlspecialchars($row['name'] ?? '') ?></td>
         <td class="px-6 py-4 text-sm">
-            <div class="flex text-amber-400">
-                <?php for($i=1; $i<=5; $i++): ?>
-                    <span class="material-symbols-outlined text-xs"><?= $i <= $row['rating'] ? 'star' : 'star_outline' ?></span>
+            <div class="flex gap-0.5 text-amber-400">
+                <?php 
+                $rating = (int)($row['rating'] ?? 0);
+                for($i=1; $i<=5; $i++): 
+                ?>
+                    <svg class="w-4 h-4 <?= $i <= $rating ? 'fill-current' : 'text-gray-300' ?>" viewBox="0 0 20 20">
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"></path>
+                    </svg>
                 <?php endfor; ?>
             </div>
         </td>
-        <td class="px-6 py-4 text-sm max-w-xs truncate"><?= htmlspecialchars($row['comment'] ?? '') ?></td>
+        <td class="px-6 py-4 text-sm max-w-xs truncate"><?= htmlspecialchars($row['review_text'] ?? '') ?></td>
         <td class="px-6 py-4 text-xs">
             <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-full font-bold uppercase"><?= $row['status'] ?></span>
         </td>
         <td class="px-6 py-4">
-            <button onclick="window.location.href='feedback.php?search=<?= urlencode($row['customer_name']) ?>'" class="text-rose-accent hover:text-rose-accent/70"><span class="material-symbols-outlined">visibility</span></button>
+            <button 
+                onclick="openReportModal(this)" 
+                data-type="Feedback"
+                data-name="<?= htmlspecialchars($row['name'] ?? '') ?>"
+                data-email="<?= htmlspecialchars($row['email'] ?? 'N/A') ?>"
+                data-rating="<?= (int)($row['rating'] ?? 0) ?>"
+                data-comment="<?= htmlspecialchars($row['review_text'] ?? '') ?>"
+                data-date="<?= date('M d, Y', strtotime($row['created_at'])) ?>"
+                data-status="<?= htmlspecialchars($row['status']) ?>"
+                class="text-rose-accent hover:text-rose-accent/70">
+                <span class="material-symbols-outlined">visibility</span>
+            </button>
         </td>
     <?php elseif ($report_type === 'Popular Food'): ?>
         <td class="px-6 py-4 text-sm font-medium"><?= htmlspecialchars($row['name']) ?></td>
-        <td class="px-6 py-4 text-sm max-w-xs truncate"><?= htmlspecialchars($row['description']) ?></td>
+        <td class="px-6 py-4 text-sm max-w-xs truncate"><?= !empty(trim($row['description'] ?? '')) ? htmlspecialchars($row['description']) : 'N/A' ?></td>
         <td class="px-6 py-4 text-sm">Category #<?= htmlspecialchars($row['category_id']) ?></td>
         <td class="px-6 py-4 text-sm font-bold">?<?= number_format($row['price'], 2) ?></td>
         <td class="px-6 py-4 text-xs">
             <span class="px-2 py-1 <?= $row['is_visible'] ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' ?> rounded-full font-bold uppercase"><?= $row['is_visible'] ? 'Active' : 'Hidden' ?></span>
         </td>
         <td class="px-6 py-4">
-            <button onclick="window.location.href='menumanage.php?search=<?= urlencode($row['name']) ?>'" class="text-rose-accent hover:text-rose-accent/70"><span class="material-symbols-outlined">visibility</span></button>
+            <button 
+                onclick="openReportModal(this)" 
+                data-type="Menu Item"
+                data-name="<?= htmlspecialchars($row['name']) ?>"
+                data-desc="<?= htmlspecialchars($row['description'] ?? 'N/A') ?>"
+                data-price="<?= number_format($row['price'], 2) ?>"
+                data-status="<?= $row['is_visible'] ? 'Active' : 'Hidden' ?>"
+                class="text-rose-accent hover:text-rose-accent/70">
+                <span class="material-symbols-outlined">visibility</span>
+            </button>
         </td>
     <?php else: ?>
-        <td class="px-6 py-4 text-sm whitespace-nowrap"><?= date("M d, Y - H:i", strtotime($row['reservation_date'] . ' ' . $row['reservation_time'])) ?></td>
-        <td class="px-6 py-4 text-sm font-medium"><?= htmlspecialchars($row['guest_name']) ?></td>
-        <td class="px-6 py-4 text-sm">Table <?= htmlspecialchars($row['table_number'] ?? 'N/A') ?></td>
-        <td class="px-6 py-4 text-xs">
-            <?php
-            $statusClass = 'bg-slate-100 text-slate-600';
-            if ($row['status'] === 'Completed') $statusClass = 'bg-emerald-100 text-emerald-700';
-            elseif ($row['status'] === 'Confirmed') $statusClass = 'bg-blue-100 text-blue-700';
-            elseif ($row['status'] === 'Pending') $statusClass = 'bg-amber-100 text-amber-700';
-            elseif ($row['status'] === 'Cancelled') $statusClass = 'bg-red-100 text-red-700';
-            ?>
-            <span class="px-2 py-1 <?= $statusClass ?> rounded-full font-bold uppercase"><?= $row['status'] ?></span>
-        </td>
-        <td class="px-6 py-4 text-sm font-bold">?<?= $row['status'] === 'Completed' ? '100.00' : '0.00' ?></td>
-        <td class="px-6 py-4">
-            <button onclick="window.location.href='reservation.php?search=<?= urlencode($row['guest_name']) ?>'" class="text-rose-accent hover:text-rose-accent/70"><span class="material-symbols-outlined">visibility</span></button>
-        </td>
+        <?php if (($row['row_type'] ?? '') === 'Feedback'): ?>
+            <td class="px-6 py-4 text-sm whitespace-nowrap"><?= date("M d, Y", strtotime($row['created_at'])) ?></td>
+            <td class="px-6 py-4 text-sm font-medium"><?= htmlspecialchars($row['name'] ?? '') ?></td>
+            <td class="px-6 py-4 text-sm text-slate-400">Rating: <?= (int)$row['rating'] ?>/5</td>
+            <td class="px-6 py-4 text-xs">
+                <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded-full font-bold uppercase"><?= $row['status'] ?></span>
+            </td>
+            <td class="px-6 py-4 text-sm font-bold text-slate-300">N/A</td>
+            <td class="px-6 py-4">
+                <button onclick="openReportModal(this)" data-type="Feedback" data-name="<?= htmlspecialchars($row['name'] ?? '') ?>" data-email="<?= htmlspecialchars($row['email'] ?? 'N/A') ?>" data-rating="<?= (int)($row['rating'] ?? 0) ?>" data-comment="<?= htmlspecialchars($row['review_text'] ?? '') ?>" data-date="<?= date('M d, Y', strtotime($row['created_at'])) ?>" data-status="<?= htmlspecialchars($row['status']) ?>" class="text-rose-accent hover:text-rose-accent/70"><span class="material-symbols-outlined">visibility</span></button>
+            </td>
+        <?php elseif (($row['row_type'] ?? '') === 'Popular Food'): ?>
+            <td class="px-6 py-4 text-sm text-slate-300">N/A</td>
+            <td class="px-6 py-4 text-sm font-medium"><?= htmlspecialchars($row['name']) ?></td>
+            <td class="px-6 py-4 text-sm text-slate-400">Cat: #<?= htmlspecialchars($row['category_id']) ?></td>
+            <td class="px-6 py-4 text-xs">
+                <span class="px-2 py-1 <?= $row['is_visible'] ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600' ?> rounded-full font-bold uppercase"><?= $row['is_visible'] ? 'Active' : 'Hidden' ?></span>
+            </td>
+            <td class="px-6 py-4 text-sm font-bold">?<?= number_format($row['price'], 2) ?></td>
+            <td class="px-6 py-4">
+                <button onclick="openReportModal(this)" data-type="Menu Item" data-name="<?= htmlspecialchars($row['name']) ?>" data-desc="<?= htmlspecialchars($row['description'] ?? 'N/A') ?>" data-price="<?= number_format($row['price'], 2) ?>" data-status="<?= $row['is_visible'] ? 'Active' : 'Hidden' ?>" class="text-rose-accent hover:text-rose-accent/70"><span class="material-symbols-outlined">visibility</span></button>
+            </td>
+        <?php else: ?>
+            <td class="px-6 py-4 text-sm whitespace-nowrap"><?= date("M d, Y - H:i", strtotime(($row['reservation_date'] ?? '') . ' ' . ($row['reservation_time'] ?? ''))) ?></td>
+            <td class="px-6 py-4 text-sm font-medium"><?= htmlspecialchars($row['guest_name'] ?? 'N/A') ?></td>
+            <td class="px-6 py-4 text-sm">Table <?= htmlspecialchars($row['table_number'] ?? 'N/A') ?></td>
+            <td class="px-6 py-4 text-xs">
+                <?php
+                $status = $row['status'] ?? 'Unknown';
+                $statusClass = 'bg-slate-100 text-slate-600';
+                if ($status === 'Completed') $statusClass = 'bg-emerald-100 text-emerald-700';
+                elseif ($status === 'Confirmed') $statusClass = 'bg-blue-100 text-blue-700';
+                elseif ($status === 'Pending') $statusClass = 'bg-amber-100 text-amber-700';
+                elseif ($status === 'Cancelled') $statusClass = 'bg-red-100 text-red-700';
+                ?>
+                <span class="px-2 py-1 <?= $statusClass ?> rounded-full font-bold uppercase"><?= $status ?></span>
+            </td>
+            <td class="px-6 py-4 text-sm font-bold">?<?= ($row['status'] ?? '') === 'Completed' ? '100.00' : '0.00' ?></td>
+            <td class="px-6 py-4">
+                <button 
+                    onclick="openReportModal(this)"
+                    data-type="Reservation" 
+                    data-name="<?= htmlspecialchars($row['guest_name'] ?? 'N/A') ?>"
+                    data-email="<?= htmlspecialchars($row['email'] ?? 'N/A') ?>"
+                    data-date="<?= date('M d, Y', strtotime($row['reservation_date'] ?? 'now')) ?>"
+                    data-time="<?= date('h:i A', strtotime($row['reservation_time'] ?? 'now')) ?>"
+                    data-table="<?= htmlspecialchars($row['table_number'] ?? 'N/A') ?>"
+                    data-status="<?= htmlspecialchars($row['status'] ?? 'N/A') ?>"
+                    data-amount="<?= ($row['status'] ?? '') === 'Completed' ? '100.00' : '0.00' ?>"
+                    class="text-rose-accent hover:text-rose-accent/70">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+            </td>
+        <?php endif; ?>
     <?php endif; ?>
     </tr>
     <?php endforeach; ?>
@@ -420,24 +419,297 @@ $repeat_percent = round(($repeat_count / $total_customers) * 100);
 </table>
 </div>
 <!-- Pagination -->
-<div class="p-6 border-t border-rose-accent/10 flex justify-between items-center">
-<p class="text-xs text-slate-500 font-medium">Showing <?= count($data_to_display) ?> report results</p>
-<div class="flex items-center gap-1">
-<button class="p-2 rounded-lg border border-rose-accent/10 hover:bg-rose-accent/5 disabled:opacity-50" disabled="">
-<span class="material-symbols-outlined text-sm">chevron_left</span>
-</button>
-<button class="size-8 rounded-lg bg-rose-accent text-white text-xs font-bold">1</button>
-<button class="size-8 rounded-lg border border-rose-accent/10 text-xs font-bold hover:bg-rose-accent/5">2</button>
-<button class="size-8 rounded-lg border border-rose-accent/10 text-xs font-bold hover:bg-rose-accent/5">3</button>
-<button class="p-2 rounded-lg border border-rose-accent/10 hover:bg-rose-accent/5">
-<span class="material-symbols-outlined text-sm">chevron_right</span>
-</button>
-</div>
+<div class="p-6 border-t border-luxe-border flex items-center justify-between">
+    <div class="flex items-center gap-6">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">
+            Showing <span id="showingCount" class="text-luxe-dark font-bold">1-10</span> of <span id="totalCount" class="text-luxe-dark font-bold">100</span> entries
+        </p>
+        <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <span>Show</span>
+            <select id="pageSizeSelector" onchange="changePageSize(this.value)" class="bg-white border border-luxe-border rounded-xl px-3 py-1.5 outline-none focus:border-primary transition-all cursor-pointer text-sm font-bold text-luxe-dark shadow-sm">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+            </select>
+            <span>entries</span>
+        </div>
+    </div>
+    <div id="paginationButtons" class="flex items-center gap-1">
+        <!-- Buttons injected by JS -->
+    </div>
 </div>
 </section>
 </main>
 </div>
+
+<!-- Report Details Modal -->
+<div id="reportModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <!-- Overlay -->
+    <div onclick="closeReportModal()" class="absolute inset-0 bg-luxe-dark/40 backdrop-blur-sm"></div>
+    
+    <!-- Modal Card -->
+    <div class="relative bg-[#faf9f8] w-full max-w-lg mx-4 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+        <!-- Header -->
+        <header class="bg-primary px-8 py-6 text-white flex justify-between items-center">
+            <div>
+                <h2 id="modalTitle" class="text-xl font-black font-serif">Report Details</h2>
+                <p id="modalSubtitle" class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Information Overview</p>
+            </div>
+            <button onclick="closeReportModal()" class="size-10 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </header>
+
+        <!-- Body -->
+        <div class="px-8 py-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <!-- Dynamic Content Area -->
+            <div id="modalContentGrid" class="grid grid-cols-2 gap-4">
+                <!-- Data items will be injected here -->
+            </div>
+
+            <!-- Detailed Section -->
+            <div id="modalTextSection" class="hidden">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Content / Description</p>
+                <div class="bg-luxe-beige/30 p-4 rounded-2xl border border-luxe-border italic text-sm text-luxe-dark">
+                    <span id="modalLongText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #c67c7c44; border-radius: 10px; }
+</style>
+
 <script>
+function openReportModal(btn) {
+    const data = btn.dataset;
+    const grid = document.getElementById('modalContentGrid');
+    const textSection = document.getElementById('modalTextSection');
+    const longText = document.getElementById('modalLongText');
+    const subtitle = document.getElementById('modalSubtitle');
+    
+    subtitle.innerText = `${data.type} Information`;
+    grid.innerHTML = '';
+    textSection.classList.add('hidden');
+
+    // Default fields to always show if present
+    const fields = [
+        { label: 'Name / Item', value: data.name },
+        { label: 'Email', value: data.email },
+        { label: 'Date', value: data.date },
+        { label: 'Time', value: data.time },
+        { label: 'Table', value: data.table },
+        { label: 'Status', value: data.status },
+        { label: 'Price / Amt', value: data.price || data.amount }
+    ];
+
+    fields.forEach(field => {
+        if (field.value && field.value !== 'N/A') {
+            const item = document.createElement('div');
+            item.innerHTML = `
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">${field.label}</p>
+                <p class="text-sm font-bold text-luxe-dark">${field.value}</p>
+            `;
+            grid.appendChild(item);
+        }
+    });
+
+    // Handle Ratings
+    if (data.rating && data.rating > 0) {
+        const ratingItem = document.createElement('div');
+        let stars = '';
+        for(let i=1; i<=5; i++) {
+            stars += `<span class="material-symbols-outlined text-xs ${i <= data.rating ? 'text-amber-400' : 'text-slate-300'}" style="font-variation-settings: 'FILL' ${i <= data.rating ? 1 : 0}">star</span>`;
+        }
+        ratingItem.innerHTML = `
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rating</p>
+            <div class="flex gap-0.5">${stars}</div>
+        `;
+        grid.appendChild(ratingItem);
+    }
+
+    // Handle Description / Comment
+    const detailedText = data.comment || data.desc;
+    if (detailedText && detailedText !== 'N/A' && detailedText !== '') {
+        longText.innerText = `"${detailedText}"`;
+        textSection.classList.remove('hidden');
+    }
+
+    document.getElementById('reportModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// --- Pagination Logic ---
+let currentPage = 1;
+let rowsPerPage = 10;
+let tableRows = [];
+
+function initPagination() {
+    const tbody = document.querySelector('tbody');
+    // Skip "No report data found" row
+    tableRows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.innerText.includes('No report data found'));
+    
+    if (tableRows.length === 0) {
+        document.getElementById('paginationButtons').innerHTML = '';
+        document.getElementById('showingCount').innerText = '0';
+        document.getElementById('totalCount').innerText = '0';
+        return;
+    }
+    paginateTable();
+}
+
+function paginateTable() {
+    const totalRows = tableRows.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    
+    // Bounds check
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // Slice rows
+    tableRows.forEach((row, index) => {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        row.style.display = (index >= start && index < end) ? '' : 'none';
+    });
+
+    // Update count text
+    const startCount = totalRows > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0;
+    const endCount = Math.min(currentPage * rowsPerPage, totalRows);
+    document.getElementById('showingCount').innerText = `${startCount}-${endCount}`;
+    document.getElementById('totalCount').innerText = totalRows;
+
+    // Generate Buttons
+    renderPaginationButtons(totalPages);
+}
+
+function renderPaginationButtons(totalPages) {
+    const container = document.getElementById('paginationButtons');
+    if (totalPages < 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+    
+    if (totalPages > 1) {
+        html += `
+            <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="p-2 rounded-lg border border-rose-accent/10 hover:bg-rose-accent/5 disabled:opacity-50 transition-colors">
+                <span class="material-symbols-outlined text-sm">chevron_left</span>
+            </button>
+        `;
+    }
+
+    // Simple page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        html += `
+            <button onclick="goToPage(${i})" class="size-8 rounded-lg ${currentPage === i ? 'bg-primary text-white' : 'border border-rose-accent/10 hover:bg-rose-accent/5 text-slate-600'} text-xs font-bold transition-all">
+                ${i}
+            </button>
+        `;
+    }
+
+    if (totalPages > 1) {
+        html += `
+            <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="p-2 rounded-lg border border-rose-accent/10 hover:bg-rose-accent/5 disabled:opacity-50 transition-colors">
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+            </button>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+window.goToPage = function(page) {
+    currentPage = page;
+    paginateTable();
+}
+
+window.changePageSize = function(size) {
+    rowsPerPage = parseInt(size);
+    currentPage = 1;
+    paginateTable();
+}
+
+// --- Filter Integration ---
+function handleSearch(query) {
+    const tableBody = document.querySelector('tbody');
+    const rows = Array.from(tableBody.querySelectorAll('tr')).filter(row => !row.innerText.includes('No report data found'));
+    
+    tableRows = rows.filter(row => {
+        const text = row.innerText.toLowerCase();
+        return text.includes(query.toLowerCase());
+    });
+
+    currentPage = 1;
+    paginateTable();
+    if (typeof calculatePeakHour === 'function') calculatePeakHour();
+}
+
+function calculatePeakHour() {
+    const timeCounts = {};
+    if (typeof tableRows === 'undefined' || tableRows.length === 0) {
+        const displayEl = document.getElementById('peak-hour-value');
+        if (displayEl) displayEl.innerText = 'N/A';
+        return;
+    }
+
+    tableRows.forEach(row => {
+        const time = row.getAttribute('data-reservation-time');
+        if (time && time !== '') {
+            timeCounts[time] = (timeCounts[time] || 0) + 1;
+        }
+    });
+
+    let peakTime = 'N/A';
+    let maxCount = 0;
+
+    for (const time in timeCounts) {
+        if (timeCounts[time] > maxCount) {
+            maxCount = timeCounts[time];
+            peakTime = time;
+        }
+    }
+
+    const displayEl = document.getElementById('peak-hour-value');
+    if (displayEl) {
+        if (peakTime !== 'N/A') {
+            const [h, m] = peakTime.split(':');
+            const hours = h.padStart(2, '0');
+            const minutes = m.padStart(2, '0');
+            displayEl.innerText = `${hours}:${minutes}`;
+        } else {
+            displayEl.innerText = 'N/A';
+        }
+    }
+}
+
+document.getElementById('search_input').addEventListener('input', function (e) {
+    handleSearch(e.target.value);
+});
+
+// Overriding enter key to prevent reload
+document.getElementById('search_input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSearch(e.target.value);
+    }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    initPagination();
+    calculatePeakHour();
+});
+
 document.getElementById('exportBtn').addEventListener('click', function () {
     const from = document.getElementById('from_date').value;
     const to = document.getElementById('to_date').value;

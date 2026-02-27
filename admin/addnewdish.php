@@ -21,10 +21,13 @@ $categories = get_all_categories($pdo);
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -36,7 +39,7 @@ $categories = get_all_categories($pdo);
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -52,7 +55,7 @@ $categories = get_all_categories($pdo);
 <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
 <div>
 <h2 class="serif-title text-4xl font-bold mb-2">Menu Management</h2>
-<p class="text-luxe-dark/50 text-base">Manage dishes, categories, pricing and visibility.</p>
+<p class="text-luxe-grey-text text-base">Manage dishes, categories, pricing and visibility.</p>
 </div>
 <button onclick="window.location.href='menumanage.php'" class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3.5 rounded-2xl font-semibold shadow-lg shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5">
 <span class="material-symbols-outlined">menu_open</span>
@@ -82,7 +85,7 @@ $categories = get_all_categories($pdo);
                 <!-- Dish Name -->
                 <div class="space-y-2">
                     <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Dish Name</label>
-                    <input name="name" required class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm placeholder:text-luxe-dark/20" placeholder="e.g. Pan-seared Scallops" type="text"/>
+                    <input name="name" required class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm placeholder:text-luxe-dark/20" placeholder="e.g. Pan-seared Scallops" type="text"/>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-6">
@@ -90,7 +93,7 @@ $categories = get_all_categories($pdo);
                     <div class="space-y-2">
                         <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Category</label>
                         <div class="relative">
-                            <select name="category_id" required class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm appearance-none bg-white">
+                            <select name="category_id" required class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm appearance-none bg-white">
                                 <?php foreach ($categories as $cat): ?>
                                     <option value="<?= $cat['id'] ?>"><?= e($cat['name']) ?></option>
                                 <?php endforeach; ?>
@@ -101,20 +104,20 @@ $categories = get_all_categories($pdo);
                     <!-- Price -->
                     <div class="space-y-2">
                         <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Price (?)</label>
-                        <input name="price" required step="0.01" class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" placeholder="0.00" type="number"/>
+                        <input name="price" required step="0.01" class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm" placeholder="0.00" type="number"/>
                     </div>
                 </div>
 
                 <!-- Description -->
                 <div class="space-y-2">
                     <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Description</label>
-                    <textarea name="description" class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm resize-none placeholder:text-luxe-dark/20 custom-scrollbar" placeholder="Brief description of the dish..." rows="3"></textarea>
+                    <textarea name="description" class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm resize-none placeholder:text-luxe-dark/20 custom-scrollbar" placeholder="Brief description of the dish..." rows="3"></textarea>
                 </div>
 
                 <!-- Image URL -->
                 <div class="space-y-2">
                     <label class="text-[11px] uppercase tracking-widest text-luxe-dark/40 font-bold ml-1">Image URL</label>
-                    <input name="image_url" class="w-full px-4 py-3 rounded-xl border border-primary/10 focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm placeholder:text-luxe-dark/20" placeholder="https://..." type="text"/>
+                    <input name="image_url" class="w-full px-4 py-3 rounded-xl border border-luxe-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all outline-none text-sm placeholder:text-luxe-dark/20" placeholder="https://..." type="text"/>
                 </div>
 
                 <!-- Visibility Toggle -->

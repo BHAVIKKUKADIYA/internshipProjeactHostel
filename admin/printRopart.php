@@ -53,10 +53,15 @@ $trend = $last_month > 0 ? round((($this_month - $last_month) / $last_month) * 1
             theme: {
                 extend: {
                     colors: {
-                        'luxe-rose': '#B76E79',
-                        'luxe-roseDark': '#a35d68',
-                        'luxe-charcoal': '#2B2B2B',
-                        'luxe-ivory': '#F8F6F2',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
+                        'luxe-dark': '#2b2b2b',
+                        'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
+                        'luxe-charcoal': '#2b2b2b',
+                        'luxe-ivory': '#faf9f8',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -99,7 +104,7 @@ $trend = $last_month > 0 ? round((($this_month - $last_month) / $last_month) * 1
         }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #B76E79; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c67c7c; border-radius: 10px; }
     </style>
 </head>
 <body class="h-screen w-full overflow-hidden flex items-center justify-center relative bg-stone-100">
@@ -108,10 +113,10 @@ $trend = $last_month > 0 ? round((($this_month - $last_month) / $last_month) * 1
 <!-- Sidebar -->
 <aside class="w-64 bg-white border-r border-gray-200 p-6 flex flex-col">
 <div class="mb-10 flex items-center gap-3">
-<div class="w-10 h-10 bg-luxe-rose rounded-full flex items-center justify-center text-white">Ψ</div>
+<div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-serif italic text-xl">L</div>
 <div>
-<h1 class="font-bold text-lg leading-none">LUXE</h1>
-<p class="text-[10px] uppercase tracking-widest text-luxe-rose">Management</p>
+<h1 class="font-bold text-lg leading-none text-luxe-dark">LUXE</h1>
+<p class="text-[10px] uppercase tracking-widest text-primary">Management</p>
 </div>
 </div>
 <nav class="space-y-4 opacity-50">
@@ -144,39 +149,39 @@ $trend = $last_month > 0 ? round((($this_month - $last_month) / $last_month) * 1
 <!-- The "Paper" -->
 <article class="bg-white w-[210mm] min-h-[297mm] p-16 paper-shadow flex flex-col transform origin-top scale-95">
 <!-- Paper Header -->
-<div class="flex justify-between items-start border-b-2 border-luxe-rose pb-8 mb-10">
+<div class="flex justify-between items-start border-b-2 border-primary pb-8 mb-10">
 <div>
 <h3 class="serif-heading text-3xl text-luxe-charcoal mb-1"><?= htmlspecialchars($report_type) ?> Report</h3>
 <p class="text-sm text-gray-500 uppercase tracking-wide">Period: <?= $from_date ?: 'All Time' ?> <?= $to_date ? ' to ' . $to_date : '' ?></p>
 </div>
 <div class="text-right">
-<p class="text-xs font-bold text-luxe-rose">LUXE RESTAURANT GROUP</p>
+<p class="text-xs font-bold text-primary">LUXE RESTAURANT GROUP</p>
 <p class="text-[10px] text-gray-400">Generated on: <?= date("M d, Y H:i A") ?></p>
 </div>
 </div>
 <!-- Paper Content (Stats) -->
 <div class="grid grid-cols-3 gap-8 mb-12">
-<div class="border-l-2 border-luxe-rose/30 pl-4">
-<p class="text-[10px] text-gray-400 uppercase font-semibold">Total Bookings</p>
-<p class="text-2xl font-serif text-luxe-charcoal"><?= count($transactions) ?></p>
+<div class="border-l-2 border-primary/30 pl-4">
+<p class="text-[10px] text-luxe-grey-text uppercase font-semibold">Total Bookings</p>
+<p class="text-2xl font-serif text-luxe-dark"><?= count($transactions) ?></p>
 </div>
-<div class="border-l-2 border-luxe-rose/30 pl-4">
-<p class="text-[10px] text-gray-400 uppercase font-semibold">Growth Trend</p>
-<p class="text-2xl font-serif <?= $trend >= 0 ? 'text-green-600' : 'text-rose-600' ?>"><?= $trend >= 0 ? '+' : '' ?><?= $trend ?>%</p>
+<div class="border-l-2 border-primary/30 pl-4">
+<p class="text-[10px] text-luxe-grey-text uppercase font-semibold">Growth Trend</p>
+<p class="text-2xl font-serif <?= $trend >= 0 ? 'text-green-600' : 'text-primary' ?>"><?= $trend >= 0 ? '+' : '' ?><?= $trend ?>%</p>
 </div>
-<div class="border-l-2 border-luxe-rose/30 pl-4">
-<p class="text-[10px] text-gray-400 uppercase font-semibold">Avg Revenue</p>
-<p class="text-2xl font-serif text-luxe-charcoal">?<?= number_format($total_stats['avg_order'] ?? 0, 2) ?></p>
+<div class="border-l-2 border-primary/30 pl-4">
+<p class="text-[10px] text-luxe-grey-text uppercase font-semibold">Avg Revenue</p>
+<p class="text-2xl font-serif text-luxe-dark">?<?= number_format($total_stats['avg_order'] ?? 0, 2) ?></p>
 </div>
 </div>
 <!-- Paper Content (Mock Chart) -->
 <div class="mb-12">
 <p class="text-xs font-bold text-gray-700 uppercase mb-4">Weekly Booking Velocity</p>
 <div class="h-48 w-full bg-gray-50 flex items-end justify-between px-10 pb-4 border rounded-lg">
-<div class="w-12 bg-luxe-rose/40 h-24 rounded-t"></div>
-<div class="w-12 bg-luxe-rose/60 h-32 rounded-t"></div>
-<div class="w-12 bg-luxe-rose/80 h-40 rounded-t"></div>
-<div class="w-12 bg-luxe-rose h-44 rounded-t"></div>
+<div class="w-12 bg-primary/40 h-24 rounded-t"></div>
+<div class="w-12 bg-primary/60 h-32 rounded-t"></div>
+<div class="w-12 bg-primary/80 h-40 rounded-t"></div>
+<div class="w-12 bg-primary h-44 rounded-t"></div>
 </div>
 </div>
 <!-- Paper Content (Table) -->
@@ -303,7 +308,7 @@ $trend = $last_month > 0 ? round((($this_month - $last_month) / $last_month) * 1
 <button onclick="window.location.href='reportgenrate.php'" class="px-8 py-2.5 rounded-full text-sm font-semibold border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors">
           Cancel
         </button>
-<button class="px-10 py-2.5 rounded-full text-sm font-semibold bg-luxe-rose text-white hover:bg-luxe-roseDark shadow-lg shadow-luxe-rose/20 transition-all flex items-center gap-2">
+<button class="px-10 py-2.5 rounded-full text-sm font-semibold bg-primary text-white hover:bg-primary-hover shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
 </svg>

@@ -36,10 +36,13 @@ $today_arrivals = $pdo->query("SELECT COUNT(*) FROM reservations WHERE reservati
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -51,7 +54,7 @@ $today_arrivals = $pdo->query("SELECT COUNT(*) FROM reservations WHERE reservati
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -67,7 +70,7 @@ $today_arrivals = $pdo->query("SELECT COUNT(*) FROM reservations WHERE reservati
         <div class="flex items-center gap-4 flex-1">
             <div class="relative w-full max-w-md">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
-                <input class="w-full bg-background-light dark:bg-white/5 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Search reservations..." type="text"/>
+                <input class="w-full bg-background-light dark:bg-white/5 border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Search reservations..." type="text"/>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -111,7 +114,7 @@ $today_arrivals = $pdo->query("SELECT COUNT(*) FROM reservations WHERE reservati
                     <h3 class="text-3xl font-bold mt-1"><?= number_format($res_stats['total']) ?></h3>
                 </div>
             </div>
-            <div class="bg-white dark:bg-white/5 p-6 rounded-xl border border-primary/20 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between h-full">
+            <div class="bg-white dark:bg-white/5 p-6 rounded-xl border border-primary shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between h-full">
                 <div class="absolute top-0 right-0 p-4 opacity-5">
                     <span class="material-symbols-outlined text-7xl text-primary">pending_actions</span>
                 </div>
@@ -192,23 +195,29 @@ $today_arrivals = $pdo->query("SELECT COUNT(*) FROM reservations WHERE reservati
         <div class="bg-white dark:bg-white/5 rounded-xl border border-luxe-border shadow-md overflow-hidden">
             <table class="w-full text-left border-collapse">
                 <thead class="sticky top-0 z-10">
-                    <tr class="bg-gray-50/80 backdrop-blur-sm dark:bg-white/5 border-b border-luxe-border">
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">ID</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Guest</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Date &amp; Time</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Party Size</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Contact</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Status</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] text-right">Actions</th>
+                    <tr class="bg-luxe-beige/50 backdrop-blur-sm dark:bg-white/5 border-b border-luxe-border">
+                        <th class="px-6 py-4 text-[10px] font-bold text-luxe-rose uppercase tracking-[0.2em]">ID</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-luxe-rose uppercase tracking-[0.2em]">Guest</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-luxe-rose uppercase tracking-[0.2em]">Date &amp; Time</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-luxe-rose uppercase tracking-[0.2em]">Party Size</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-luxe-rose uppercase tracking-[0.2em]">Contact</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-luxe-rose uppercase tracking-[0.2em]">Status</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-luxe-rose uppercase tracking-[0.2em] text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-white/5">
+                <tbody id="reservationTableBody" class="divide-y divide-gray-100 dark:divide-white/5">
                     <?php foreach ($reservations as $res): ?>
-<tr class="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+<tr class="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all reservation-row" 
+    data-res-id="<?= $res['id'] ?>"
+    data-guest-name="<?= e($res['guest_name']) ?>"
+    data-status="<?= e($res['status']) ?>"
+    data-date="<?= $res['reservation_date'] ?>"
+    data-guest-count="<?= e($res['guest_count']) ?>"
+    data-search="<?= e($res['guest_name']) ?> <?= e($res['phone']) ?> <?= e($res['email']) ?>">
 <td class="px-6 py-5 align-middle text-sm font-mono text-gray-400">#<?= e($res['id']) ?></td>
 <td class="px-6 py-5 align-middle">
 <div class="flex items-center gap-3">
-<div class="size-8 rounded-full bg-rose-accent/20 flex items-center justify-center text-rose-accent font-bold text-xs uppercase"><?= substr(e($res['guest_name']), 0, 2) ?></div>
+<div class="size-8 rounded-full bg-luxe-rose/20 flex items-center justify-center text-luxe-rose font-bold text-xs uppercase"><?= substr(e($res['guest_name']), 0, 2) ?></div>
 <p class="text-sm font-bold text-luxe-charcoal"><?= e($res['guest_name']) ?></p>
 </div>
 </td>
@@ -232,7 +241,7 @@ $today_arrivals = $pdo->query("SELECT COUNT(*) FROM reservations WHERE reservati
 <td class="px-6 py-5 align-middle" id="status-cell-<?= $res['id'] ?>">
 <?php
 $statusClass = '';
-if ($res['status'] == 'Pending') $statusClass = 'bg-rose-accent/15 text-rose-accent border-rose-accent/30';
+if ($res['status'] == 'Pending') $statusClass = 'bg-luxe-rose/15 text-luxe-rose border-luxe-rose/30';
 elseif ($res['status'] == 'Confirmed') $statusClass = 'bg-green-500/15 text-green-500 border-green-500/30';
 elseif ($res['status'] == 'Completed') $statusClass = 'bg-gray-400/15 text-gray-400 border-gray-400/30';
 elseif ($res['status'] == 'Cancelled') $statusClass = 'bg-red-500/10 text-red-500 border-red-500/20';
@@ -269,19 +278,22 @@ elseif ($res['status'] == 'Cancelled') $statusClass = 'bg-red-500/10 text-red-50
             </table>
             <!-- Pagination -->
             <div class="px-6 py-4 bg-gray-50/50 dark:bg-white/5 border-t border-luxe-border flex items-center justify-between">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Showing <?= count($reservations) ?> reservations</p>
-                <div class="flex items-center gap-2">
-                    <button class="size-8 flex items-center justify-center border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
-                        <span class="material-symbols-outlined text-sm">chevron_left</span>
-                    </button>
-                    <button class="size-8 flex items-center justify-center bg-primary text-white text-xs font-black rounded-lg shadow-sm shadow-primary/20">1</button>
-                    <button class="size-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 text-xs font-bold rounded-lg transition-colors">2</button>
-                    <button class="size-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 text-xs font-bold rounded-lg transition-colors">3</button>
-                    <span class="text-xs px-1 text-gray-400">...</span>
-                    <button class="size-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/10 text-xs font-bold rounded-lg transition-colors">128</button>
-                    <button class="size-8 flex items-center justify-center border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
-                        <span class="material-symbols-outlined text-sm">chevron_right</span>
-                    </button>
+                <div class="flex items-center gap-6">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                        Showing <span id="showingCount" class="text-luxe-dark font-bold">1-10</span> of <span id="totalCount" class="text-luxe-dark font-bold">100</span> entries
+                    </p>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span>Show</span>
+                        <select id="pageSizeSelector" onchange="changePageSize(this.value)" class="bg-transparent border border-gray-200 dark:border-white/10 rounded px-2 py-0.5 outline-none focus:border-primary transition-colors cursor-pointer text-[10px] font-black">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="15">15</option>
+                        </select>
+                        <span>entries</span>
+                    </div>
+                </div>
+                <div id="paginationButtons" class="flex items-center gap-1">
+                    <!-- Buttons injected by JS -->
                 </div>
             </div>
         </div>
@@ -363,47 +375,131 @@ elseif ($res['status'] == 'Cancelled') $statusClass = 'bg-red-500/10 text-red-50
     const moreFiltersBtn = document.getElementById('more-filters-btn');
     const extraFiltersPanel = document.getElementById('extra-filters-panel');
 
-    moreFiltersBtn.addEventListener('click', () => {
-        extraFiltersPanel.classList.toggle('hidden');
-    });
+    if (moreFiltersBtn) {
+        moreFiltersBtn.addEventListener('click', () => {
+            extraFiltersPanel.classList.toggle('hidden');
+        });
+    }
 
     function applyFilters() {
-        const search = searchFilter.value;
+        if (!searchFilter) return;
+        const query = searchFilter.value.toLowerCase();
         const status = statusFilter.value;
-        const start = startDateInput.value;
-        const end = endDateInput.value;
         const guestCount = guestCountFilter.value;
-        
-        let url = new URL(window.location.href);
-        url.searchParams.set('search', search);
-        url.searchParams.set('status', status);
-        if (start && end) {
-            url.searchParams.set('start_date', start);
-            url.searchParams.set('end_date', end);
-        } else {
-            url.searchParams.delete('start_date');
-            url.searchParams.delete('end_date');
-        }
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
 
-        if (guestCount) {
-            url.searchParams.set('guest_count', guestCount);
-        } else {
-            url.searchParams.delete('guest_count');
-        }
+        const rows = Array.from(document.querySelectorAll('.reservation-row'));
+        let visibleRows = [];
 
-        window.location.href = url.toString();
+        rows.forEach(row => {
+            const rowSearch = row.dataset.search.toLowerCase();
+            const rowStatus = row.dataset.status;
+            const rowDate = row.dataset.date;
+            const rowGuestCount = row.dataset.guestCount;
+
+            const matchesSearch = rowSearch.includes(query);
+            const matchesStatus = status === 'All Statuses' || rowStatus === status;
+            const matchesGuestCount = !guestCount || (guestCount === 'Any Size' || (guestCount === '5+' ? parseInt(rowGuestCount) >= 5 : rowGuestCount === guestCount));
+            
+            let matchesDate = true;
+            if (startDate && endDate) {
+                matchesDate = rowDate >= startDate && rowDate <= endDate;
+            }
+
+            if (matchesSearch && matchesStatus && matchesGuestCount && matchesDate) {
+                visibleRows.push(row);
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        currentPage = 1;
+        handlePagination(visibleRows);
     }
+
+    // --- Pagination Logic ---
+    let currentPage = 1;
+    let rowsPerPage = 10;
+
+    function handlePagination(visibleRows) {
+        const totalRows = visibleRows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        visibleRows.forEach((row, index) => {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            row.style.display = (index >= start && index < end) ? '' : 'none';
+        });
+
+        const startCount = totalRows > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0;
+        const endCount = Math.min(currentPage * rowsPerPage, totalRows);
+        document.getElementById('showingCount').innerText = `${startCount}-${endCount}`;
+        document.getElementById('totalCount').innerText = totalRows;
+
+        renderPaginationButtons(totalPages, visibleRows);
+    }
+
+    function renderPaginationButtons(totalPages, visibleRows) {
+        const container = document.getElementById('paginationButtons');
+        if (totalPages < 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        
+        if (totalPages > 1) {
+            html += `
+                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="size-8 flex items-center justify-center border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors disabled:opacity-30">
+                    <span class="material-symbols-outlined text-sm">chevron_left</span>
+                </button>
+            `;
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            html += `
+                <button onclick="goToPage(${i})" class="size-8 flex items-center justify-center ${currentPage === i ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'hover:bg-gray-100 dark:hover:bg-white/10 text-xs font-bold transition-colors'} rounded-lg">
+                    ${i}
+                </button>
+            `;
+        }
+
+        if (totalPages > 1) {
+            html += `
+                <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="size-8 flex items-center justify-center border border-gray-200 dark:border-white/10 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors disabled:opacity-30">
+                    <span class="material-symbols-outlined text-sm">chevron_right</span>
+                </button>
+            `;
+        }
+
+        container.innerHTML = html;
+        window.currentVisibleRows = visibleRows;
+    }
+
+    window.goToPage = function(page) {
+        currentPage = page;
+        handlePagination(window.currentVisibleRows);
+        const tableTop = document.querySelector('.overflow-hidden');
+        if (tableTop) tableTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.changePageSize = function(size) {
+        rowsPerPage = parseInt(size);
+        currentPage = 1;
+        applyFilters();
+    };
 
     function resetExtraFilters() {
         guestCountFilter.value = '';
         applyFilters();
     }
 
-    searchFilter.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') applyFilters();
-    });
-
-    statusFilter.addEventListener('change', applyFilters);
+    if (searchFilter) searchFilter.addEventListener('input', applyFilters);
+    if (statusFilter) statusFilter.addEventListener('change', applyFilters);
 
     flatpickr("#date-range-picker", {
         mode: "range",
@@ -424,6 +520,9 @@ elseif ($res['status'] == 'Cancelled') $statusClass = 'bg-red-500/10 text-red-50
         endDateInput.value = '';
         applyFilters();
     }
+
+    // Initial call
+    document.addEventListener('DOMContentLoaded', applyFilters);
 
     async function handleStatusAction(reservationId, action) {
         console.log("Updating status:", reservationId, action);

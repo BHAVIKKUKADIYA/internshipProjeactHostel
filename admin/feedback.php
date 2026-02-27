@@ -10,9 +10,9 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
     $action = $_GET['action'];
     
     if ($action === 'approve') {
-        moderate_feedback($pdo, $id, 'Approved');
+        moderate_feedback($pdo, $id, 'approved');
     } elseif ($action === 'reject') {
-        moderate_feedback($pdo, $id, 'Rejected');
+        moderate_feedback($pdo, $id, 'rejected');
     } elseif ($action === 'delete') {
         // We might need a delete_feedback function in feedback_actions.php
         // For now let's assume it exists or use moderate to 'Deleted'
@@ -42,11 +42,16 @@ $stats = get_feedback_stats($pdo);
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
+                        'luxe-charcoal': '#2b2b2b',
+                        'luxe-cream': '#ffffff'
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -57,10 +62,13 @@ $stats = get_feedback_stats($pdo);
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c !important; color: white !important; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f4efec; color: #2b2b2b; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
+        .bg-luxe-beige { background-color: #fdfbf9; }
+        .text-luxe-rose { color: #c67c7c; }
+        .border-luxe-border { border-color: #e5e0dd; }
     </style>
 </head>
 <body class="bg-[#f4efec] text-luxe-dark min-h-screen">
@@ -87,7 +95,7 @@ $stats = get_feedback_stats($pdo);
 <div class="bg-white p-6 rounded-luxe border border-luxe-border hover-card transition-custom shadow-sm">
 <div class="flex justify-between items-start mb-4">
 <span class="text-luxe-grey-text text-sm font-medium uppercase tracking-wider">Total Feedback</span>
-<div class="p-2 bg-luxe-rose/10 rounded-lg text-luxe-rose">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
 <svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
 </div>
 </div>
@@ -98,7 +106,7 @@ $stats = get_feedback_stats($pdo);
 <div class="bg-white p-6 rounded-luxe border border-luxe-border hover-card transition-custom shadow-sm">
 <div class="flex justify-between items-start mb-4">
 <span class="text-luxe-grey-text text-sm font-medium uppercase tracking-wider">5-Star Reviews</span>
-<div class="p-2 bg-luxe-rose/10 rounded-lg text-luxe-rose">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
 <svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
 </div>
 </div>
@@ -109,7 +117,7 @@ $stats = get_feedback_stats($pdo);
 <div class="bg-white p-6 rounded-luxe border border-luxe-border hover-card transition-custom shadow-sm">
 <div class="flex justify-between items-start mb-4">
 <span class="text-luxe-grey-text text-sm font-medium uppercase tracking-wider">Pending Reviews</span>
-<div class="p-2 bg-luxe-rose/10 rounded-lg text-luxe-rose">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
 <svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg>
 </div>
 </div>
@@ -120,7 +128,7 @@ $stats = get_feedback_stats($pdo);
 <div class="bg-white p-6 rounded-luxe border border-luxe-border hover-card transition-custom shadow-sm">
 <div class="flex justify-between items-start mb-4">
 <span class="text-luxe-grey-text text-sm font-medium uppercase tracking-wider">Average Rating</span>
-<div class="p-2 bg-luxe-rose/10 rounded-lg text-luxe-rose">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
 <svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 2c-5.62 0-10.19 4.48-10.47 10h2.01c.28-4.39 3.92-7.85 8.39-7.97l-.01 2.02L17.5 3.5 13.5 1v1zm1.5 10c0-1.66-1.34-3-3-3s-3 1.34-3 3 1.34 3 3 3 3-1.34 3-3zm-9 0c0 5.52 4.48 10 10 10 3.31 0 6.24-1.61 8.06-4.09l-1.47-1.35c-1.4 1.91-3.66 3.16-6.21 3.42V18h-2v2.01c-3.92-.12-7.14-3.13-7.85-6.91l-1.95-.14c.28 5.52 4.85 10 10.47 10h1v-2l4 2.5-4 2.5v-2h-1c-6.63 0-12-5.37-12-12s5.37-12 12-12h1v2l4-2.5-4-2.5v2h-1c-5.18 0-9.44 3.93-9.96 9z"></path></svg>
 </div>
 </div>
@@ -175,7 +183,7 @@ $stats = get_feedback_stats($pdo);
 </div>
 </div>
 <div class="relative w-full md:w-96 md:ml-auto" data-purpose="filter-search">
-  <input id="header-search-input" class="w-full bg-white border border-luxe-border text-sm text-luxe-charcoal rounded-luxe pl-11 pr-4 py-2.5 focus:border-luxe-rose focus:ring-1 focus:ring-luxe-rose/30 transition-custom outline-none placeholder:text-gray-400 h-[42px]" placeholder="Search reviews..." type="text"/>
+  <input id="header-search-input" class="w-full bg-white border border-luxe-border text-sm text-luxe-charcoal rounded-luxe pl-11 pr-4 py-2.5 focus:border-primary focus:ring-1 focus:ring-primary/30 transition-custom outline-none placeholder:text-gray-400 h-[42px]" placeholder="Search reviews..." type="text"/>
   <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -190,28 +198,28 @@ $stats = get_feedback_stats($pdo);
 <table class="w-full text-left border-collapse">
 <thead>
 <tr class="bg-luxe-beige/50 border-b border-luxe-border">
-<th class="px-6 py-4 text-xs uppercase tracking-widest text-luxe-rose font-semibold">Customer Details</th>
-<th class="px-6 py-4 text-xs uppercase tracking-widest text-luxe-rose font-semibold">Rating</th>
-<th class="px-6 py-4 text-xs uppercase tracking-widest text-luxe-rose font-semibold">Review Content</th>
-<th class="px-6 py-4 text-xs uppercase tracking-widest text-luxe-rose font-semibold">Status</th>
-<th class="px-6 py-4 text-xs uppercase tracking-widest text-luxe-rose font-semibold">Actions</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-primary font-semibold">Customer Details</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-primary font-semibold">Rating</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-primary font-semibold">Review Content</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-primary font-semibold">Status</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-primary font-semibold text-right">Actions</th>
 </tr>
 </thead>
 <tbody class="divide-y divide-luxe-border/50">
 <?php foreach ($feedbacks as $fb): ?>
 <?php 
 $initials = '';
-if (!empty($fb['customer_name'])) {
-    $parts = explode(' ', $fb['customer_name']);
+if (!empty($fb['name'])) {
+    $parts = explode(' ', $fb['name']);
     $initials = strtoupper(substr($parts[0], 0, 1) . (count($parts) > 1 ? substr($parts[count($parts)-1], 0, 1) : ''));
 }
 ?>
-<tr class="table-row-hover transition-custom" data-id="<?= e($fb['id']) ?>" data-name="<?= e($fb['customer_name']) ?>" data-email="<?= e($fb['email']) ?>" data-rating="<?= e($fb['rating']) ?>" data-date="<?= date("M d, Y", strtotime($fb['created_at'])) ?>" data-review="<?= e($fb['comment']) ?>" data-visit="<?= date("M d, Y", strtotime($fb['created_at'])) ?>" data-table="N/A" data-staff="N/A" data-status="<?= e($fb['status']) ?>" data-initials="<?= e($initials) ?>">
+<tr class="table-row-hover transition-custom" data-id="<?= e($fb['id']) ?>" data-name="<?= e($fb['name']) ?>" data-email="<?= e($fb['email']) ?>" data-rating="<?= e($fb['rating']) ?>" data-date="<?= date("M d, Y", strtotime($fb['created_at'])) ?>" data-review="<?= e($fb['review_text']) ?>" data-visit="<?= date("M d, Y", strtotime($fb['created_at'])) ?>" data-table="N/A" data-staff="N/A" data-status="<?= e($fb['status']) ?>" data-initials="<?= e($initials) ?>">
 <td class="px-6 py-5">
 <div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full bg-luxe-beige flex items-center justify-center text-luxe-rose font-serif text-lg border border-luxe-border"><?= e($initials) ?></div>
+<div class="w-10 h-10 rounded-full bg-luxe-beige flex items-center justify-center text-primary font-serif text-lg border border-luxe-border"><?= e($initials) ?></div>
 <div>
-<div class="text-sm font-medium text-luxe-charcoal"><?= e($fb['customer_name']) ?></div>
+<div class="text-sm font-medium text-luxe-charcoal"><?= e($fb['name']) ?></div>
 <div class="text-xs text-gray-500"><?= e($fb['email']) ?></div>
 </div>
 </div>
@@ -219,30 +227,31 @@ if (!empty($fb['customer_name'])) {
 <td class="px-6 py-5">
 <div class="flex gap-0.5">
 <?php for ($i = 1; $i <= 5; $i++): ?>
-<svg class="w-4 h-4 <?= $i <= $fb['rating'] ? 'text-luxe-rose' : 'text-gray-300' ?> fill-current" viewbox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"></path></svg>
+<svg class="w-4 h-4 <?= $i <= $fb['rating'] ? 'text-primary' : 'text-gray-300' ?> fill-current" viewbox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"></path></svg>
 <?php endfor; ?>
 </div>
 <div class="text-[10px] text-gray-500 mt-1 uppercase tracking-tighter"><?= date("M d, Y", strtotime($fb['created_at'])) ?></div>
 </td>
 <td class="px-6 py-5">
-<p class="text-sm text-luxe-charcoal/80 max-w-xs truncate"><?= e($fb['comment']) ?></p>
+<p class="text-sm text-luxe-charcoal/80 max-w-xs truncate"><?= e($fb['review_text']) ?></p>
 </td>
 <td class="px-6 py-5">
 <?php
 $statusClass = '';
-if ($fb['status'] == 'Approved') $statusClass = 'bg-green-500/10 text-green-500 border-green-500/20 bg-emerald-50 text-emerald-600 border-emerald-100';
-elseif ($fb['status'] == 'Pending') $statusClass = 'bg-amber-500/10 text-amber-500 border-amber-500/20 bg-amber-50 text-amber-600 border-amber-100';
-elseif ($fb['status'] == 'Rejected') $statusClass = 'bg-red-500/10 text-red-500 border-red-500/20 bg-rose-50 text-rose-600 border-rose-100';
+$displayStatus = ucfirst($fb['status']);
+if ($fb['status'] == 'approved') $statusClass = 'bg-green-100 text-green-700 border-green-200';
+elseif ($fb['status'] == 'pending') $statusClass = 'bg-orange-100 text-orange-700 border-orange-200';
+elseif ($fb['status'] == 'rejected') $statusClass = 'bg-red-100 text-red-700 border-red-200';
 ?>
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusClass ?>"><?= e($fb['status']) ?></span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusClass ?>"><?= e($displayStatus) ?></span>
 </td>
 <td class="px-6 py-5 text-right">
 <div class="flex items-center justify-end gap-2">
-<?php if ($fb['status'] == 'Pending'): ?>
+<?php if ($fb['status'] == 'pending'): ?>
 <a href="?action=approve&id=<?= $fb['id'] ?>" class="p-2 hover:bg-green-500/10 rounded-lg text-gray-400 hover:text-green-500 transition-custom" title="Approve">
 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </a>
-<a href="?action=reject&id=<?= $fb['id'] ?>" class="p-2 hover:bg-orange-500/10 rounded-lg text-gray-400 hover:text-orange-500 transition-custom" title="Reject">
+<a href="?action=reject&id=<?= $fb['id'] ?>" class="p-2 hover:bg-red-500/10 rounded-lg text-gray-400 hover:text-red-500 transition-custom" title="Reject">
 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </a>
 <?php endif; ?>
@@ -261,22 +270,23 @@ elseif ($fb['status'] == 'Rejected') $statusClass = 'bg-red-500/10 text-red-500 
 </div>
 <!-- Pagination -->
 <div class="bg-white px-6 py-4 border-t border-luxe-border flex items-center justify-between">
-<span class="text-xs text-gray-500">Showing 1 to 4 of 1,284 entries</span>
-<div class="flex items-center gap-2">
-<button class="p-2 text-gray-500 hover:text-luxe-gold transition-custom disabled:opacity-30" disabled="">
-<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" fill-rule="evenodd"></path></svg>
-</button>
-<div class="flex gap-1">
-<button class="w-8 h-8 rounded-lg bg-luxe-rose text-white text-xs font-bold shadow-luxe-rose/20">1</button>
-<button class="w-8 h-8 rounded-lg text-gray-400 hover:bg-luxe-border text-xs transition-custom">2</button>
-<button class="w-8 h-8 rounded-lg text-gray-400 hover:bg-luxe-border text-xs transition-custom">3</button>
-<span class="text-gray-600 px-1">...</span>
-<button class="w-8 h-8 rounded-lg text-gray-400 hover:bg-luxe-border text-xs transition-custom">32</button>
-</div>
-<button class="p-2 text-gray-500 hover:text-luxe-gold transition-custom">
-<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" fill-rule="evenodd"></path></svg>
-</button>
-</div>
+    <div class="flex items-center gap-6">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">
+            Showing <span id="showingCount" class="text-luxe-dark font-bold">1-10</span> of <span id="totalCount" class="text-luxe-dark font-bold">100</span> entries
+        </p>
+        <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <span>Show</span>
+            <select id="pageSizeSelector" onchange="changePageSize(this.value)" class="bg-white border border-luxe-border rounded px-2 py-0.5 outline-none focus:border-primary transition-all cursor-pointer text-xs font-bold text-luxe-charcoal shadow-sm">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="15">15</option>
+            </select>
+            <span>entries</span>
+        </div>
+    </div>
+    <div id="paginationButtons" class="flex items-center gap-1">
+        <!-- Buttons injected by JS -->
+    </div>
 </div>
 </section>
 <!-- END: FeedbackTable -->
@@ -299,8 +309,8 @@ elseif ($fb['status'] == 'Rejected') $statusClass = 'bg-red-500/10 text-red-500 
 <!-- BEGIN: Modal Header -->
 <header class="px-8 pt-8 pb-4 flex justify-between items-start">
 <div class="space-y-1">
-<p class="text-[10px] uppercase tracking-widest text-[#8A8A8A] font-semibold">Review Details</p>
-<h1 class="text-3xl font-serif text-[#4A4A4A]" style="font-family: 'Georgia', serif;">Guest Feedback</h1>
+<p class="text-[10px] uppercase tracking-widest text-luxe-grey-text font-semibold">Review Details</p>
+<h1 class="text-3xl font-serif text-luxe-charcoal">Guest Feedback</h1>
 </div>
 <!-- Close Button -->
 <button id="modalCloseBtn" class="text-[#8A8A8A] hover:text-[#4A4A4A] transition-colors p-2">
@@ -316,22 +326,22 @@ elseif ($fb['status'] == 'Rejected') $statusClass = 'bg-red-500/10 text-red-500 
 <section class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-luxe-border pb-8">
 <div class="flex items-center gap-4">
 <!-- Avatar Circle -->
-<div id="modalInitials" class="h-16 w-16 rounded-full bg-[#F9F1F0] flex items-center justify-center text-[#C38280] font-serif text-xl border border-[#C38280]/10" style="font-family: 'Georgia', serif;">MW</div>
+<div id="modalInitials" class="h-16 w-16 rounded-full bg-luxe-beige flex items-center justify-center text-primary font-serif text-xl border border-primary/10">MW</div>
 <div>
-<h2 id="modalGuestName" class="text-xl font-semibold text-[#4A4A4A]">Marcus Wright</h2>
-<p id="modalEmail" class="text-sm text-[#8A8A8A]">m.wright@luxury.co</p>
+<h2 id="modalGuestName" class="text-xl font-semibold text-luxe-charcoal">Marcus Wright</h2>
+<p id="modalEmail" class="text-sm text-luxe-grey-text">m.wright@luxury.co</p>
 </div>
 </div>
 <div class="flex flex-col md:items-end gap-1">
-<div id="modalRating" class="flex gap-1 text-[#C38280]">
+<div id="modalRating" class="flex gap-1 text-primary">
 </div>
-<p id="modalReviewDate" class="text-xs font-medium text-[#8A8A8A] uppercase tracking-wider">OCT 25, 2023</p>
+<p id="modalReviewDate" class="text-xs font-medium text-luxe-grey-text uppercase tracking-wider">OCT 25, 2023</p>
 </div>
 </section>
 <!-- Section: Feedback Message -->
 <section class="space-y-4">
-<h3 class="text-xs font-bold uppercase tracking-widest text-[#8A8A8A]">Review Content</h3>
-<p id="modalReviewContent" class="text-[#4A4A4A] leading-relaxed text-lg italic font-serif" style="font-family: 'Georgia', serif;">
+<h3 class="text-xs font-bold uppercase tracking-widest text-luxe-grey-text">Review Content</h3>
+<p id="modalReviewContent" class="text-luxe-charcoal leading-relaxed text-lg italic font-serif">
 "Wait time was longer than expected despite a reservation, but the Truffle Risotto was an absolute masterpiece. The ambiance in the evening is unmatched. I would suggest slightly more attentive service near the bar area."
 </p>
 </section>
@@ -356,16 +366,7 @@ elseif ($fb['status'] == 'Rejected') $statusClass = 'bg-red-500/10 text-red-500 
 </section>
 </main>
 <!-- END: Modal Content -->
-<!-- BEGIN: Modal Footer / Actions -->
-<footer class="px-8 py-8 bg-[#F4EFEC]/50 border-t border-luxe-border flex flex-col sm:flex-row justify-end items-center gap-4">
-<button id="modalRejectBtn" class="w-full sm:w-auto px-8 py-3 rounded-lg border-2 border-[#C38280] text-[#C38280] font-semibold hover:bg-[#C38280] hover:text-white transition-all duration-300 active:scale-95">
-Reject Review
-</button>
-<button id="modalApproveBtn" class="w-full sm:w-auto px-8 py-3 rounded-lg bg-[#C38280] text-white font-semibold hover:bg-[#b07270] shadow-lg shadow-[#C38280]/20 transition-all duration-300 active:scale-95">
-Approve Review
-</button>
-</footer>
-<!-- END: Modal Footer / Actions -->
+
 </article>
 <!-- END: Modal Card -->
 </div>
@@ -545,15 +546,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function applyAllFilters() {
-        const rows = document.querySelectorAll('tbody tr');
-        const countSpan = document.querySelector('[data-purpose="table-container"] .text-xs.text-gray-500');
+        const rows = Array.from(document.querySelectorAll('tbody tr'));
         const searchInput = document.getElementById('header-search-input');
         const ratingBtn = document.querySelector('.custom-dropdown .dropdown-value');
         
         const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const ratingText = ratingBtn ? ratingBtn.textContent : 'All Ratings';
         
-        let visibleCount = 0;
+        let visibleRows = [];
 
         rows.forEach(row => {
             const name = (row.dataset.name || '').toLowerCase();
@@ -571,15 +571,94 @@ document.addEventListener('DOMContentLoaded', function() {
                 matchesRating = (rating === targetRating);
             }
 
-            const shouldShow = matchesSearch && matchesRating;
-            row.style.display = shouldShow ? '' : 'none';
-            if (shouldShow) visibleCount++;
+            if (matchesSearch && matchesRating) {
+                visibleRows.push(row);
+            } else {
+                row.style.display = 'none';
+            }
         });
 
-        if (countSpan) {
-            countSpan.textContent = `Showing ${visibleCount} entries`;
-        }
+        currentPage = 1;
+        handlePagination(visibleRows);
     }
+
+    // --- Pagination Logic ---
+    let currentPage = 1;
+    let rowsPerPage = 10;
+
+    function handlePagination(visibleRows) {
+        const totalRows = visibleRows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        visibleRows.forEach((row, index) => {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            row.style.display = (index >= start && index < end) ? '' : 'none';
+        });
+
+        const startCount = totalRows > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0;
+        const endCount = Math.min(currentPage * rowsPerPage, totalRows);
+        document.getElementById('showingCount').innerText = `${startCount}-${endCount}`;
+        document.getElementById('totalCount').innerText = totalRows;
+
+        renderPaginationButtons(totalPages, visibleRows);
+    }
+
+    function renderPaginationButtons(totalPages, visibleRows) {
+        const container = document.getElementById('paginationButtons');
+        if (totalPages < 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        
+        if (totalPages > 1) {
+            html += `
+                <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-primary transition-custom disabled:opacity-30">
+                    <span class="material-symbols-outlined text-sm">chevron_left</span>
+                </button>
+            `;
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+            html += `
+                <button onclick="goToPage(${i})" class="w-8 h-8 rounded-lg ${currentPage === i ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-gray-400 hover:bg-luxe-border'} text-xs font-bold transition-custom">
+                    ${i}
+                </button>
+            `;
+        }
+
+        if (totalPages > 1) {
+            html += `
+                <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-primary transition-custom disabled:opacity-30">
+                    <span class="material-symbols-outlined text-sm">chevron_right</span>
+                </button>
+            `;
+        }
+
+        container.innerHTML = html;
+        window.currentVisibleRows = visibleRows;
+    }
+
+    window.goToPage = function(page) {
+        currentPage = page;
+        handlePagination(window.currentVisibleRows);
+        const tableTop = document.querySelector('[data-purpose="table-container"]');
+        if (tableTop) tableTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.changePageSize = function(size) {
+        rowsPerPage = parseInt(size);
+        currentPage = 1;
+        applyAllFilters();
+    };
+
+    // Initial call
+    applyAllFilters();
     
     // Close dropdowns on outside click
     document.addEventListener('click', () => {

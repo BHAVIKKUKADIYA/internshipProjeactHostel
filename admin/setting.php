@@ -18,10 +18,13 @@ require_once '../includes/auth.php';
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -33,7 +36,7 @@ require_once '../includes/auth.php';
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -49,7 +52,7 @@ $breadcrumb = "DASHBOARD / SETTINGS";
 $title = "System Settings";
 include '../includes/admin_pageHeader.php';
 ?>
-<p class="text-slate-500 dark:text-slate-400 text-lg text-[#5a5a5a] mt-2">Manage restaurant configuration, admin preferences, and system controls.</p>
+<p class="text-luxe-grey-text text-lg mt-2">Manage restaurant configuration, admin preferences, and system controls.</p>
 </header>
 <!-- Settings Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -57,7 +60,7 @@ include '../includes/admin_pageHeader.php';
 <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 overflow-hidden bg-white shadow-sm">
 <div class="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center">
 <h3 class="text-xl font-bold text-charcoal dark:text-white flex items-center gap-2 text-[#2b2b2b]">
-<span class="material-symbols-outlined text-primary" style="color: #B76E79;">store</span>
+<span class="material-symbols-outlined text-primary">store</span>
                         Restaurant Information
                     </h3>
 </div>
@@ -68,14 +71,14 @@ include '../includes/admin_pageHeader.php';
 <div class="size-24 rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden">
 <img id="logoPreview" class="w-full h-full object-cover" data-alt="Dashboard Data Density Heatmap" src="{{DATA:IMAGE:IMAGE_23}}"/>
 </div>
-<button id="editLogoBtn" class="absolute -bottom-2 -right-2 size-8 bg-primary text-white rounded-full shadow-lg flex items-center justify-center btn-hover-lift" style="background-color: #c67c7c; color: white;">
+<button id="editLogoBtn" class="absolute -bottom-2 -right-2 size-8 bg-primary text-white rounded-full shadow-lg flex items-center justify-center btn-hover-lift">
 <span class="material-symbols-outlined text-sm">edit</span>
 </button>
 </div>
 <div>
 <p class="text-sm font-bold text-charcoal dark:text-slate-200 mb-1 text-[#2b2b2b]">Restaurant Logo</p>
 <p class="text-xs text-slate-500 mb-2 text-[#5a5a5a]">JPG, PNG or SVG. Max size 2MB.</p>
-<button id="uploadLogoLink" class="text-primary text-sm font-bold hover:underline" style="color: #B76E79;">Upload new logo</button>
+<button id="uploadLogoLink" class="text-primary text-sm font-bold hover:underline">Upload new logo</button>
 </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
@@ -101,7 +104,7 @@ include '../includes/admin_pageHeader.php';
 <textarea class="w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 focus:ring-primary focus:border-primary text-[#2b2b2b]" rows="2">123 Luxury Lane, Rose Garden Estate, Delhi - 110001</textarea>
 </div>
 <div class="pt-4">
-<button class="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold shadow-lg shadow-primary/20 transition-all btn-hover-lift" style="background-color: #c67c7c; color: white;">Save Changes</button>
+<button class="px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg font-bold shadow-lg shadow-primary/20 transition-all btn-hover-lift">Save Changes</button>
 </div>
 </div>
 </section>
@@ -109,7 +112,7 @@ include '../includes/admin_pageHeader.php';
 <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 overflow-hidden bg-white shadow-sm">
 <div class="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
 <h3 class="text-xl font-bold text-charcoal dark:text-white flex items-center gap-2 text-[#2b2b2b]">
-<span class="material-symbols-outlined text-primary" style="color: #B76E79;">account_circle</span>
+<span class="material-symbols-outlined text-primary">account_circle</span>
                         Admin Account Settings
                     </h3>
 </div>
@@ -141,7 +144,7 @@ include '../includes/admin_pageHeader.php';
 <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 overflow-hidden bg-white shadow-sm">
 <div class="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
 <h3 class="text-xl font-bold text-charcoal dark:text-white flex items-center gap-2 text-[#2b2b2b]">
-<span class="material-symbols-outlined text-primary" style="color: #B76E79;">book_online</span>
+<span class="material-symbols-outlined text-primary">book_online</span>
                         Booking Settings
                     </h3>
 </div>
@@ -153,7 +156,7 @@ include '../includes/admin_pageHeader.php';
 </div>
 <label class="relative inline-flex items-center cursor-pointer text-[#5a5a5a]">
 <input checked="" class="sr-only peer text-[#2b2b2b]" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: #c67c7c;"></div>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
 <div class="flex items-center justify-between">
@@ -163,7 +166,7 @@ include '../includes/admin_pageHeader.php';
 </div>
 <label class="relative inline-flex items-center cursor-pointer text-[#5a5a5a]">
 <input class="sr-only peer text-[#2b2b2b]" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: #c67c7c;"></div>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
 <div class="grid grid-cols-2 gap-4 pt-4">
@@ -181,14 +184,14 @@ include '../includes/admin_pageHeader.php';
 </select>
 </div>
 </div>
-<button class="w-full py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg font-bold transition-all" style="background-color: rgba(183, 110, 121, 0.1); color: #B76E79;">Save Booking Settings</button>
+<button class="w-full py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg font-bold transition-all">Save Booking Settings</button>
 </div>
 </section>
 <!-- 4. Notification Settings -->
 <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 overflow-hidden bg-white shadow-sm">
 <div class="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
 <h3 class="text-xl font-bold text-charcoal dark:text-white flex items-center gap-2 text-[#2b2b2b]">
-<span class="material-symbols-outlined text-primary" style="color: #B76E79;">notifications_active</span>
+<span class="material-symbols-outlined text-primary">notifications_active</span>
                         Notification Settings
                     </h3>
 </div>
@@ -200,7 +203,7 @@ include '../includes/admin_pageHeader.php';
 </div>
 <label class="relative inline-flex items-center cursor-pointer text-[#5a5a5a]">
 <input checked="" class="sr-only peer text-[#2b2b2b]" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: #c67c7c;"></div>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
 <div class="flex items-center justify-between py-1">
@@ -210,7 +213,7 @@ include '../includes/admin_pageHeader.php';
 </div>
 <label class="relative inline-flex items-center cursor-pointer text-[#5a5a5a]">
 <input checked="" class="sr-only peer text-[#2b2b2b]" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: #c67c7c;"></div>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
 <div class="flex items-center justify-between py-1">
@@ -220,7 +223,7 @@ include '../includes/admin_pageHeader.php';
 </div>
 <label class="relative inline-flex items-center cursor-pointer text-[#5a5a5a]">
 <input class="sr-only peer text-[#2b2b2b]" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: #c67c7c;"></div>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
 <div class="flex items-center justify-between py-1">
@@ -230,7 +233,7 @@ include '../includes/admin_pageHeader.php';
 </div>
 <label class="relative inline-flex items-center cursor-pointer text-[#5a5a5a]">
 <input checked="" class="sr-only peer text-[#2b2b2b]" type="checkbox"/>
-<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: #c67c7c;"></div>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
 <div class="pt-4">
@@ -242,7 +245,7 @@ include '../includes/admin_pageHeader.php';
 <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 overflow-hidden lg:col-span-2 bg-white shadow-sm">
 <div class="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
 <h3 class="text-xl font-bold text-charcoal dark:text-white flex items-center gap-2 text-[#2b2b2b]">
-<span class="material-symbols-outlined text-primary" style="color: #B76E79;">tune</span>
+<span class="material-symbols-outlined text-primary">tune</span>
                         System Preferences
                     </h3>
 </div>
@@ -265,7 +268,7 @@ include '../includes/admin_pageHeader.php';
 </div>
 </div>
 <div class="mt-8 flex justify-end">
-<button class="px-8 py-2.5 bg-primary text-white rounded-lg font-bold shadow-lg shadow-primary/20 transition-all btn-hover-lift" style="background-color: #c67c7c; color: white;">Save Preferences</button>
+<button class="px-8 py-2.5 bg-primary text-white rounded-lg font-bold shadow-lg shadow-primary/20 transition-all btn-hover-lift">Save Preferences</button>
 </div>
 </div>
 </section>

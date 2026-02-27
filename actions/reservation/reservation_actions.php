@@ -116,7 +116,10 @@ function add_reservation($pdo, $data) {
             ':special_requests' => $data['special_requests'] ?? ''
         ];
         
-        $stmt->execute($exec_params);
+        if (!$stmt->execute($exec_params)) {
+             error_log("Reservation SQL Error: " . implode(" ", $stmt->errorInfo()));
+             throw new Exception("SQL execution failed");
+        }
         $reservation_id = $pdo->lastInsertId();
 
         // 3. Insert into reservation_tables (for merging support)
@@ -284,9 +287,10 @@ function sync_all_slot_counts($pdo, $date) {
  */
 function get_slot_availability($pdo, $date, $time, $exclude_id = null) {
     try {
-        // Get max capacity for this slot
-        $stmt = $pdo->prepare("SELECT capacity FROM table_slots WHERE time_slot = ?");
-        $stmt->execute([$time]);
+        // Get max capacity for this slot (Handle both 24h and 12h formats in table_slots)
+        $stmt = $pdo->prepare("SELECT capacity FROM table_slots WHERE time_slot = ? OR time_slot = ?");
+        $display_time = date("h:i A", strtotime($time));
+        $stmt->execute([$time, $display_time]);
         $capacity = $stmt->fetchColumn() ?: 0;
 
         // Get active bookings for this date/time (TABLE-BASED: count number of reservations)

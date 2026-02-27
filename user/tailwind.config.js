@@ -3,7 +3,7 @@ tailwind.config = {
     theme: {
         extend: {
             colors: {
-                "primary": "#B76E79",
+                "primary": "#c67c7c",
                 "primary-hover": "#A05D67",
                 "charcoal": "#1C1C1C",
                 "soft-grey": "#5A5A5A",

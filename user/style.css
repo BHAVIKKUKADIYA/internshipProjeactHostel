@@ -96,11 +96,11 @@
 }
 
 .luxury-input:hover {
-    border-color: #B76E79;
+    border-color: #c67c7c;
 }
 
 .luxury-input:focus {
-    border-color: #B76E79;
+    border-color: #c67c7c;
     box-shadow: 0 0 10px rgba(183, 110, 121, 0.1);
 }
 
@@ -111,7 +111,7 @@
 
 .gold-focus:focus {
     outline: none;
-    border-color: #B76E79;
+    border-color: #c67c7c;
     box-shadow: 0 0 0 2px rgba(183, 110, 121, 0.1);
 }
 

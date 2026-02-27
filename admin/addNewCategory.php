@@ -34,10 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -49,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -66,9 +69,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <div class="flex justify-between items-start mb-10">
 <div>
 <h2 class="text-4xl serif-title font-semibold mb-2">Menu Management</h2>
-<p class="text-gray-500">Manage dishes, categories, pricing and visibility.</p>
+<p class="text-luxe-grey-text">Manage dishes, categories, pricing and visibility.</p>
 </div>
-<button class="bg-primary text-white px-6 py-3 rounded-2xl flex items-center gap-2 shadow-lg shadow-primary/20">
+<button class="bg-primary text-white px-6 py-3 rounded-2xl flex items-center gap-2 shadow-lg shadow-primary/30">
 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           Add New Dish
         </button>
@@ -107,12 +110,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <!-- Category Name Field -->
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-luxe-dark/60 ml-1" for="category-name">Category Name</label>
-<input required class="w-full px-4 py-3 bg-[#fcf9f7] border border-primary/10 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-sm text-luxe-dark placeholder:text-gray-300 transition-all font-medium" id="category-name" name="category-name" placeholder="e.g. Signature Cocktails" type="text"/>
+<input required class="w-full px-4 py-3 bg-[#fcf9f7] border border-luxe-border rounded-xl focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-sm text-luxe-dark placeholder:text-gray-300 transition-all font-medium" id="category-name" name="category-name" placeholder="e.g. Signature Cocktails" type="text"/>
 </div>
 <!-- Category Slug Field -->
 <div class="space-y-2">
 <label class="block text-xs font-semibold uppercase tracking-wider text-luxe-dark/60 ml-1" for="category-slug">Category Slug</label>
-<input required class="w-full px-4 py-3 bg-[#fcf9f7] border border-primary/10 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-sm text-luxe-dark placeholder:text-gray-300 transition-all font-medium" id="category-slug" name="category-slug" placeholder="e.g. signature-cocktails" type="text"/>
+<input required class="w-full px-4 py-3 bg-[#fcf9f7] border border-luxe-border rounded-xl focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-sm text-luxe-dark placeholder:text-gray-300 transition-all font-medium" id="category-slug" name="category-slug" placeholder="e.g. signature-cocktails" type="text"/>
 </div>
 <!-- Row: Display Order & Status -->
 
@@ -121,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <button onclick="window.location.href='menumanage.php'" class="px-6 py-3 text-sm font-bold text-luxe-dark/40 hover:text-luxe-dark transition-colors" type="button">
             Cancel
           </button>
-<button class="px-10 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-[#a55f69] transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide" type="submit">
+<button class="px-10 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:bg-primary-hover transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide" type="submit">
             Save Category
           </button>
 </div>

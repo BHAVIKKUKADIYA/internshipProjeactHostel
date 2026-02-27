@@ -105,14 +105,30 @@ function add_category($pdo, $name, $slug) {
  */
 function delete_category($pdo, $id) {
     try {
-        // Check if there are items in this category
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM menu_items WHERE category_id = ?");
-        $stmt->execute([$id]);
-        if ($stmt->fetchColumn() > 0) {
-            return false; // Cannot delete category with items
+        // Find "Uncategorized" category or create it
+        $stmt = $pdo->prepare("SELECT id FROM menu_categories WHERE slug = 'uncategorized'");
+        $stmt->execute();
+        $uncat_id = $stmt->fetchColumn();
+
+        if (!$uncat_id) {
+            // Create "Uncategorized" category
+            $stmt = $pdo->prepare("INSERT INTO menu_categories (name, slug) VALUES ('Uncategorized', 'uncategorized')");
+            $stmt->execute();
+            $uncat_id = $pdo->lastInsertId();
         }
+
+        // Don't delete "Uncategorized" itself
+        if ($id == $uncat_id) {
+            return false;
+        }
+
+        // Move items to Uncategorized
+        $stmt = $pdo->prepare("UPDATE menu_items SET category_id = ? WHERE category_id = ?");
+        $stmt->execute([$uncat_id, $id]);
+
+        // Now delete the category
         $stmt = $pdo->prepare("DELETE FROM menu_categories WHERE id = ?");
-        return $stmt->execute([id]);
+        return $stmt->execute([$id]);
     } catch (PDOException $e) {
         return false;
     }

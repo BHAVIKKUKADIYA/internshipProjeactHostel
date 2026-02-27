@@ -42,10 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#b76e79',
-                        'primary-hover': '#a55f69',
+                        primary: '#c67c7c',
+                        'primary-hover': '#b26a6a',
+                        'luxe-rose': '#c67c7c',
                         'luxe-dark': '#2b2b2b',
                         'luxe-beige': '#f4efec',
+                        'luxe-border': '#e5e0dd',
+                        'luxe-grey-text': '#707070',
                         'background-light': '#fdfbf9',
                     },
                     fontFamily: {
@@ -57,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </script>
     <style>
-        .sidebar-active { background: #b76e79; color: white; }
+        .sidebar-active { background: #c67c7c; color: white; }
         .transition-custom { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, .serif-title { font-family: 'Playfair Display', serif; }
@@ -151,6 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="fixed top-0 left-0 w-full h-1 bg-primary"></div>
 <div class="fixed bottom-0 left-0 w-full h-64 bg-gradient-to-t from-primary/5 to-transparent -z-10"></div>
 <div class="fixed top-20 right-20 opacity-10 -z-10 pointer-events-none">
-<span class="material-symbols-outlined text-[300px] text-primary">local_hotel</span>
+<span class="material-symbols-outlined text-[300px] text-primary">restaurant</span>
 </div>
 </body></html>
